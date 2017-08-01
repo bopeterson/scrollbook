@@ -158,9 +158,10 @@ export default class MainView extends React.Component {
   }
     
   handlePageNumberPress(frame) {
+      this.setState({logtext: 'pressing '+frame+' '+this.state.activeFrame+' '+this.state.speaking+' '+(!this.state.speaking && this.state.activeFrame==frame)})
     
-    if (!this.state.speaking) {
-      delayedPlay(frame,1);
+    if (!this.state.speaking && this.state.activeFrame==frame) {
+      this.delayedPlay(frame,1);
       //xxx kolla ev om timer för att start ljud satt
       //this.pageNumberPressTime=Date.now();
       //this.forcedScrollParent(frame);      
