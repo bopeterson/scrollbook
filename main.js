@@ -24,9 +24,10 @@ prettylog('assets',Assets);
 //xxx ändra tillbaka till loop för att det ska funka på android
 //var sounds = Assets.soundFiles.map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
 
-var sounds=[];
-for (let i=0;i<soundFiles.length;i++) {
-  const oneSound=new Sound(soundFiles[i], Sound.MAIN_BUNDLE);
+//weird-the map version above works fine on ios but does not seem to work on android
+let sounds=[];
+for (let i=0;i<Assets.soundFiles.length;i++) {
+  const oneSound=new Sound(Assets.soundFiles[i], Sound.MAIN_BUNDLE);
   sounds.push(oneSound);
 }
 
@@ -96,11 +97,10 @@ export default class MainView extends React.Component {
     super(props);
     this.state = {
       activeFrame: 0,
-      helpFrame: 0,
       scrollEnabled: true,
       speaking: false,
       logtext: JSON.stringify(Platform),
-      kuk:2
+      xxxshowframes:2
     };
     this.handleImageViewScroll = this.handleImageViewScroll.bind(this);
     this.handlePageNumberPress = this.handlePageNumberPress.bind(this);
@@ -117,24 +117,9 @@ export default class MainView extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {    
-
-/*
-    //prevent scrolling forward multiple images too fast
-    //(delete section if it will cause unpredicted scrolling behaviour)
-    if (prevState.helpFrame<this.state.helpFrame) {
-      //except less than 500 ms after indicator tap
-      const now = Date.now();
-      if ((now-this.pageNumberPressTime)>500) {
-        this.setState({scrollEnabled:false});
-        this.forcedScrollParent(prevState.helpFrame+1);
-        //this.setState({logtext:''+prevState.helpFrame+'->'+this.state.helpFrame});
-        this.scrollLockTimerID = setTimeout(()=>{this.setState({scrollEnabled:true})},20);
-      }
-    }
-*/        
     //play sound when swiped to new image, except when swiped to cover image (frame 0)
     if (prevState.activeFrame!==this.state.activeFrame) {
-      setTimeout(()=>{this.setState((prevState,props) => ({kuk:this.state.activeFrame+2}))},100);
+      setTimeout(()=>{this.setState((prevState,props) => ({xxxshowframes:this.state.activeFrame+2}))},100);
       //always clear queued sounds that havent't started when moved to a new frame
 
 
@@ -186,13 +171,6 @@ export default class MainView extends React.Component {
     const signedOffset = ((x+imwidth/2)%imwidth-imwidth/2)/imwidth;//simplify???
     const offset = Math.abs(signedOffset);
     
-    //this is for preventing scrolling of multiple frames too fast
-    if (signedOffset>=0 && signedOffset < Environment.delta) {
-      this.setState({
-        helpFrame:leftBorderFrame,
-      });
-    }
-    
     if (offset < Environment.delta) {
       this.setState({
         activeFrame:approachingFrame,
@@ -210,7 +188,7 @@ export default class MainView extends React.Component {
             ref={instance => { this._imageView = instance; }}
             onImageViewScroll={this.handleImageViewScroll}
             scrollEnabled={this.state.scrollEnabled}
-            imagesToShow={this.state.kuk}
+            imagesToShow={this.state.xxxshowframes}
           />
         </View>
         <ProgressView 
