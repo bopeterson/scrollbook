@@ -1,10 +1,10 @@
 var _Environments = {
   ios: {
-    playDelay: 800, //milliseconds, if too short, sound might start before reaching position chosen by clicking progress dot
+    playDelay: 800, //milliseconds, 
     delta: 0.25, //should not exeed 0.3
     deceleration: 'fast', 
     animateForcedScroll: true,
-    aspectRatio: (13.0/12.0), // w / h * factor that creates line between images.
+    aspectRatio: (13.0/12.0), // w / h 
     imageSideSpace: 1.03, //add some extra space left and right of image 
     imagereduction: 0.8,
     scrollThrottle: 16, //1 is tested, 16 is almost tested xxx

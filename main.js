@@ -21,15 +21,15 @@ Sound.setCategory('Playback');
 
 prettylog('assets',Assets);
 
-//xxx ändra tillbaka till loop för att det ska funka på android
-//var sounds = Assets.soundFiles.map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
+const sounds = Assets.soundFiles.map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
 
-//weird-the map version above works fine on ios but does not seem to work on android
-let sounds=[];
-for (let i=0;i<Assets.soundFiles.length;i++) {
-  const oneSound=new Sound(Assets.soundFiles[i], Sound.MAIN_BUNDLE);
-  sounds.push(oneSound);
-}
+//weird-the map version above works fine on ios but didn't seem to work on android.
+//hm, now it seems to work.....
+//let sounds=[];
+//for (let i=0;i<Assets.soundFiles.length;i++) {
+//  const oneSound=new Sound(Assets.soundFiles[i], Sound.MAIN_BUNDLE);
+//  sounds.push(oneSound);
+//}
 
 //constants for defining size of components
 //better as properties of SoundTest?
