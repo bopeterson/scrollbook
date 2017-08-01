@@ -8,6 +8,7 @@ var _Environments = {
     imageSideSpace: 1.03, //add some extra space left and right of image 
     imagereduction: 0.8,
     scrollThrottle: 16, //1 is tested, 16 is almost tested xxx
+    gradualLoad: true
   },
   android: {
     

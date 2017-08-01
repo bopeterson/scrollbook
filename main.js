@@ -100,7 +100,7 @@ export default class MainView extends React.Component {
       scrollEnabled: true,
       speaking: false,
       logtext: JSON.stringify(Platform),
-      xxxshowframes:2
+      framesToLoad: Environment.gradualLoad ? 2 : Assets.photos.length //load 2 images from start, or all images
     };
     this.handleImageViewScroll = this.handleImageViewScroll.bind(this);
     this.handlePageNumberPress = this.handlePageNumberPress.bind(this);
@@ -119,20 +119,19 @@ export default class MainView extends React.Component {
   componentDidUpdate(prevProps, prevState) {    
     //play sound when swiped to new image, except when swiped to cover image (frame 0)
     if (prevState.activeFrame!==this.state.activeFrame) {
-      setTimeout(()=>{this.setState((prevState,props) => ({xxxshowframes:this.state.activeFrame+2}))},100);
+      if (Environment.gradualLoad) {
+        //load one frame beyond current active frame. This state can only increase but not decrease. When scrolling backwards, all frames that have been shown remain loaded. 
+
+        setTimeout(()=>{this.setState((prevState,props) => ({framesToLoad:Math.max(this.state.activeFrame+2,prevState.framesToLoad)}))},100);
+        
+      }
       //always clear queued sounds that havent't started when moved to a new frame
-
-
       clearTimeout(this.speakerTimerID);
       //don't play sound when moved to start frame
       if (this.state.activeFrame>0) {
         this.delayedPlay(this.state.activeFrame,Environment.playDelay);
       }
-
     }
-    
-
-    
   }
   
   forcedScrollParent(frame) {
@@ -158,13 +157,9 @@ export default class MainView extends React.Component {
   }
     
   handlePageNumberPress(frame) {
-      this.setState({logtext: 'pressing '+frame+' '+this.state.activeFrame+' '+this.state.speaking+' '+(!this.state.speaking && this.state.activeFrame==frame)})
-    
-    if (!this.state.speaking && this.state.activeFrame==frame) {
+    this.setState({logtext:this.state.framesToLoad});
+    if (!this.state.speaking && this.state.activeFrame==frame && frame!=0) {
       this.delayedPlay(frame,1);
-      //xxx kolla ev om timer för att start ljud satt
-      //this.pageNumberPressTime=Date.now();
-      //this.forcedScrollParent(frame);      
     }
   }
     
@@ -191,7 +186,7 @@ export default class MainView extends React.Component {
             ref={instance => { this._imageView = instance; }}
             onImageViewScroll={this.handleImageViewScroll}
             scrollEnabled={this.state.scrollEnabled}
-            imagesToShow={this.state.xxxshowframes}
+            framesToLoad={this.state.framesToLoad}
           />
         </View>
         <ProgressView 
@@ -236,7 +231,7 @@ class ImageView extends React.Component {
         onScroll={this.handleScroll}
         scrollEventThrottle={Environment.scrollThrottle}
       >
-        {Assets.photos.slice(0,this.props.imagesToShow).map((src, i) => {
+        {Assets.photos.slice(0,this.props.framesToLoad).map((src, i) => {
           return (
             <Image
               key={i}
