@@ -104,7 +104,7 @@ export default class MainView extends React.Component {
     };
     this.handleImageViewScroll = this.handleImageViewScroll.bind(this);
     this.handlePageNumberPress = this.handlePageNumberPress.bind(this);
-    this.pageNumberPressTime=0;
+    //this.pageNumberPressTime=0;
   }
   
   componentDidMount() {
@@ -159,9 +159,11 @@ export default class MainView extends React.Component {
     
   handlePageNumberPress(frame) {
     
-    if (this.state.scrollEnabled) { //maybe state.speaking instead
-      this.pageNumberPressTime=Date.now();
-      this.forcedScrollParent(frame);      
+    if (!this.state.speaking) {
+      delayedPlay(frame,1);
+      //xxx kolla ev om timer för att start ljud satt
+      //this.pageNumberPressTime=Date.now();
+      //this.forcedScrollParent(frame);      
     }
   }
     
@@ -196,7 +198,7 @@ export default class MainView extends React.Component {
             onPageNumberPress={this.handlePageNumberPress}
             showSpeaker={this.state.speaking}
         />
-        {/*<Log text={this.state.logtext} />*/}
+        {<Log text={this.state.logtext} />}
       </View>
     );
   }
