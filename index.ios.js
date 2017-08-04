@@ -1,3 +1,3 @@
 import {AppRegistry} from 'react-native';
-import MainView from './maintest.js';
+import MainView from './main.js';
 AppRegistry.registerComponent('Flyg', () => MainView);

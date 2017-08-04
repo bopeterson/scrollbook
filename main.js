@@ -44,16 +44,36 @@ const speakerwidth = indicatorwidth*0.8;
 
 //stylesheets
 var styles = StyleSheet.create({
-  background: {
+  container: {flex: 1, 
+    flexDirection: 'row',
+    backgroundColor: 'darkred', //black
+  },
+  
+  left: {
+    flex:1 ,
+    flexDirection: 'column',
+    alignItems:'center',
+    justifyContent: 'center'
+  },
+  
+  middle: {
+    width: imwidth, //xxx reduntant??? see *
+  },
+  
+  right: {
+    flex: 1
+  },
+
+  mainContent: {
     flex: 1, 
     justifyContent: 'center', 
     flexDirection: 'column',
-    alignItems: 'center', 
-    backgroundColor: '#000000',
+    alignItems: 'flex-start', 
   },
+
   
   imageViewContainer: {
-    width: imwidth, 
+    width: imwidth, //* in middle instead???
     height: imheight, //not needed?
     backgroundColor: '#222222'
   },
@@ -80,7 +100,25 @@ var styles = StyleSheet.create({
   speaker: {
     width: speakerwidth, 
     height: speakerwidth
-  }
+  },
+  
+  backButton: {
+    width: indicatorwidth, 
+    height: indicatorwidth,
+  },
+  
+  backButtonBellow: {
+    margin: indicatormargin, 
+    backgroundColor: 'darkblue',
+  },
+
+  backButtonLeft: {
+    margin: indicatormargin, 
+    backgroundColor: 'red',
+  },
+
+
+
 });
 
 
@@ -97,6 +135,7 @@ export default class MainView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT',
       activeFrame: 0,
       scrollEnabled: true,
       speaking: false,
@@ -105,6 +144,7 @@ export default class MainView extends React.Component {
     };
     this.handleImageViewScroll = this.handleImageViewScroll.bind(this);
     this.handlePageNumberPress = this.handlePageNumberPress.bind(this);
+    this.handleBackButtonPress = this.handleBackButtonPress.bind(this);
     //this.pageNumberPressTime=0;
   }
   
@@ -163,6 +203,12 @@ export default class MainView extends React.Component {
       this.delayedPlay(frame,1);
     }
   }
+
+  handleBackButtonPress() {
+    this.setState({logtext:"back xxx"});
+  }
+
+
     
   handleImageViewScroll(x) {
     const leftBorderFrame = Math.floor(x/imwidth);
@@ -179,33 +225,44 @@ export default class MainView extends React.Component {
     }
   }
 
-  onlayoutChange(event) {
-    this.setState({logtext: 'xxx'});
-  }
+
   
   onLayout(e) {
     const {width, height} = Dimensions.get('window');
-    this.setState({logtext:Dimensions.get('window').width+' '+JSON.stringify(e.nativeEvent)});
+    this.setState({logtext:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'});
+    this.setState({orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'});
   }
 
   render() {
     return (
-      <View style={[styles.background]} onLayout={this.onLayout.bind(this)}>
-        <View style={[styles.imageViewContainer]}>
-          <ImageView onLayout={this._onLayout}
-            ref={instance => { this._imageView = instance; }}
-            onImageViewScroll={this.handleImageViewScroll}
-            scrollEnabled={this.state.scrollEnabled}
-            framesToLoad={this.state.framesToLoad}
-          />
+     <View style={[styles.container]} onLayout={this.onLayout.bind(this)}>
+        <View style={[styles.left]}>
+        <BackButtonLeft onBackButtonPress={this.handleBackButtonPress} orientation={this.state.orientation} />
         </View>
-        <ProgressView
-            frame={this.state.activeFrame} 
-            onPageNumberPress={this.handlePageNumberPress}
-            showSpeaker={this.state.speaking}
-        />
-        {<Log text={this.state.logtext} />}
+        <View style={[styles.middle]}>
+          <View style={[styles.mainContent]}>
+            <View style={[styles.imageViewContainer]}>
+              <ImageView onLayout={this._onLayout}
+                ref={instance => { this._imageView = instance; }}
+                onImageViewScroll={this.handleImageViewScroll}
+                scrollEnabled={this.state.scrollEnabled}
+                framesToLoad={this.state.framesToLoad}
+              />
+            </View>
+            <ProgressView
+              frame={this.state.activeFrame} 
+              onPageNumberPress={this.handlePageNumberPress}
+              showSpeaker={this.state.speaking}
+            />
+            <BackButtonBelow onBackButtonPress={this.handleBackButtonPress}
+orientation={this.state.orientation} />
+
+            {<Log text={this.state.logtext} />}
+          </View>
+        </View>
+        <View style={[styles.right]} />
       </View>
+
     );
   }
 }
@@ -266,6 +323,71 @@ class SpeakerImage extends React.Component {
   }
 }
 
+class BackButtonLeft extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handlePress=this.handlePress.bind(this);
+  }
+
+  handlePress(e) {    
+    //let parent handle:     
+    this.props.onBackButtonPress();
+  }
+
+  render() {
+    if (this.props.orientation=='PORTRAIT') {
+      return null;
+    } else {
+      return (
+        <TouchableOpacity 
+          onPress={(e) => this.handlePress(e)} 
+          activeOpacity={0.6}
+        >
+          <BackButton style={styles.backButtonLeft}/>
+        </TouchableOpacity>
+      )
+    }
+  }
+}
+
+class BackButtonBelow extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handlePress=this.handlePress.bind(this);
+  }
+
+  handlePress(e) {    
+    //let parent handle:     
+    this.props.onBackButtonPress();
+  }
+
+  render() {
+    if (this.props.orientation=='LANDSCAPE') {
+      return null;
+    } else {
+      return (
+        <TouchableOpacity 
+          onPress={(e) => this.handlePress(e)} 
+          activeOpacity={0.6}
+        >
+          <BackButton style={styles.backButtonBellow}/>
+        </TouchableOpacity>
+      )
+    }
+  }
+}
+
+class BackButton extends React.Component {
+  
+  
+  
+  render() {
+    return (
+        <Image style={[styles.backButton, this.props.style]} source={Assets.backIcon} />
+    );
+  }
+}
+
 class ProgressView extends React.Component {
   constructor(props) {
     super(props);
@@ -275,7 +397,6 @@ class ProgressView extends React.Component {
   componentDidMount() {
 
   }
-  
   
   handlePress(e,frame) {
     //let parent handle:     

@@ -8,6 +8,7 @@ var _Assets = {
     require('./img/flyg005.jpg'),
   ],
   speakerIcon: require('./img/speaker256x256.png'),
+  backIcon: require('./img/backbutton256x256.png'),
   soundFiles: [
     'tada.mp3', //only used while testing
     'flyg1.mp3',
