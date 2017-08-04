@@ -97,6 +97,7 @@ export default class MainView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT',
       activeFrame: 0,
       scrollEnabled: true,
       speaking: false,
@@ -179,33 +180,45 @@ export default class MainView extends React.Component {
     }
   }
 
-  onlayoutChange(event) {
-    this.setState({logtext: 'xxx'});
-  }
+
   
   onLayout(e) {
     const {width, height} = Dimensions.get('window');
-    this.setState({logtext:Dimensions.get('window').width+' '+JSON.stringify(e.nativeEvent)});
+    this.setState({logtext:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'});
+    this.setState({orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'});
   }
 
   render() {
     return (
-      <View style={[styles.background]} onLayout={this.onLayout.bind(this)}>
-        <View style={[styles.imageViewContainer]}>
-          <ImageView onLayout={this._onLayout}
-            ref={instance => { this._imageView = instance; }}
-            onImageViewScroll={this.handleImageViewScroll}
-            scrollEnabled={this.state.scrollEnabled}
-            framesToLoad={this.state.framesToLoad}
-          />
+     <View style={{flex: 1, flexDirection: 'row'}}>
+        <View style={{flex:1 ,backgroundColor: 'red',flexDirection: 'column',alignItems:'center',justifyContent: 'center'}}>
+        <BackButtonLeft orientation={this.state.orientation} />
         </View>
-        <ProgressView
-            frame={this.state.activeFrame} 
-            onPageNumberPress={this.handlePageNumberPress}
-            showSpeaker={this.state.speaking}
-        />
-        {<Log text={this.state.logtext} />}
+        <View style={{width: imwidth, backgroundColor: 'yellow'}}>
+      
+      
+          <View style={[styles.background]} onLayout={this.onLayout.bind(this)}>
+            <View style={[styles.imageViewContainer]}>
+              <ImageView onLayout={this._onLayout}
+                ref={instance => { this._imageView = instance; }}
+                onImageViewScroll={this.handleImageViewScroll}
+                scrollEnabled={this.state.scrollEnabled}
+                framesToLoad={this.state.framesToLoad}
+              />
+            </View>
+            <ProgressView
+              frame={this.state.activeFrame} 
+              onPageNumberPress={this.handlePageNumberPress}
+              showSpeaker={this.state.speaking}
+            />
+            <BackButtonUnder orientation={this.state.orientation} />
+
+            {<Log text={this.state.logtext} />}
+          </View>
+        </View>
+        <View style={{flex: 1, backgroundColor: 'green'}} />
       </View>
+
     );
   }
 }
@@ -265,6 +278,29 @@ class SpeakerImage extends React.Component {
     }
   }
 }
+
+class BackButtonLeft extends React.Component {
+  render() {
+    if (this.props.orientation=='PORTRAIT') {
+      return null;
+    } else {
+      return <Image style={[styles.speaker]} source={Assets.speakerIcon} />
+      //xxx return <Text>{this.props.orientation}</Text>
+    }
+  }
+}
+
+class BackButtonUnder extends React.Component {
+  render() {
+    if (this.props.orientation=='LANDSCAPE') {
+      return null;
+    } else {
+      return <Image style={[styles.speaker,{backgroundColor:'yellow'}]} source={Assets.speakerIcon} />
+      //xxx return <Text>{this.props.orientation}</Text>
+    }
+  }
+}
+
 
 class ProgressView extends React.Component {
   constructor(props) {
