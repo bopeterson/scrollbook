@@ -101,23 +101,12 @@ var styles = StyleSheet.create({
     width: speakerwidth, 
     height: speakerwidth
   },
-  
+
   backButton: {
     width: indicatorwidth, 
     height: indicatorwidth,
-  },
-  
-  backButtonBellow: {
     margin: indicatormargin, 
-    backgroundColor: 'darkblue',
   },
-
-  backButtonLeft: {
-    margin: indicatormargin, 
-    backgroundColor: 'red',
-  },
-
-
 
 });
 
@@ -237,7 +226,7 @@ export default class MainView extends React.Component {
     return (
      <View style={[styles.container]} onLayout={this.onLayout.bind(this)}>
         <View style={[styles.left]}>
-        <BackButtonLeft onBackButtonPress={this.handleBackButtonPress} orientation={this.state.orientation} />
+        <BackButton onBackButtonPress={this.handleBackButtonPress} orientation={this.state.orientation} renderIf={'LANDSCAPE'}/>
         </View>
         <View style={[styles.middle]}>
           <View style={[styles.mainContent]}>
@@ -254,8 +243,8 @@ export default class MainView extends React.Component {
               onPageNumberPress={this.handlePageNumberPress}
               showSpeaker={this.state.speaking}
             />
-            <BackButtonBelow onBackButtonPress={this.handleBackButtonPress}
-orientation={this.state.orientation} />
+            <BackButton onBackButtonPress={this.handleBackButtonPress}
+orientation={this.state.orientation} renderIf={'PORTRAIT'} />
 
             {<Log text={this.state.logtext} />}
           </View>
@@ -323,68 +312,30 @@ class SpeakerImage extends React.Component {
   }
 }
 
-class BackButtonLeft extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handlePress=this.handlePress.bind(this);
-  }
-
-  handlePress(e) {    
-    //let parent handle:     
-    this.props.onBackButtonPress();
-  }
-
-  render() {
-    if (this.props.orientation=='PORTRAIT') {
-      return null;
-    } else {
-      return (
-        <TouchableOpacity 
-          onPress={(e) => this.handlePress(e)} 
-          activeOpacity={0.6}
-        >
-          <BackButton style={styles.backButtonLeft}/>
-        </TouchableOpacity>
-      )
-    }
-  }
-}
-
-class BackButtonBelow extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handlePress=this.handlePress.bind(this);
-  }
-
-  handlePress(e) {    
-    //let parent handle:     
-    this.props.onBackButtonPress();
-  }
-
-  render() {
-    if (this.props.orientation=='LANDSCAPE') {
-      return null;
-    } else {
-      return (
-        <TouchableOpacity 
-          onPress={(e) => this.handlePress(e)} 
-          activeOpacity={0.6}
-        >
-          <BackButton style={styles.backButtonBellow}/>
-        </TouchableOpacity>
-      )
-    }
-  }
-}
-
 class BackButton extends React.Component {
-  
-  
-  
+  constructor(props) {
+    super(props);
+    this.handlePress=this.handlePress.bind(this);
+  }
+
+  handlePress(e) {    
+    //let parent handle:     
+    this.props.onBackButtonPress();
+  }
+
   render() {
-    return (
-        <Image style={[styles.backButton, this.props.style]} source={Assets.backIcon} />
-    );
+    if (this.props.orientation==this.props.renderIf) {      
+      return (
+        <TouchableOpacity 
+          onPress={(e) => this.handlePress(e)} 
+          activeOpacity={0.6}
+        >
+          <Image style={[styles.backButton]} source={Assets.backIcon} />
+        </TouchableOpacity>
+      )
+    } else {
+      return null;
+    }
   }
 }
 
