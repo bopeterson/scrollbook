@@ -1,4 +1,6 @@
 //ändra alla var till let eller const
+import {AppRegistry} from 'react-native';
+
 import React, { Component } from 'react';
 import {
   StyleSheet,
@@ -9,9 +11,12 @@ import {
   ScrollView,
   Dimensions,
   TouchableOpacity,
-  Platform
+  Platform,
+  Button, //not needed
 } from 'react-native';
 import Sound from 'react-native-sound';
+import { StackNavigator } from 'react-navigation';
+import { NavigationActions } from 'react-navigation';
 
 var Environment = require('./environment.js');
 var Assets = require('./assets.js');
@@ -120,6 +125,10 @@ function prettylog(text,obj) {
 prettylog("windowdimensions",Dimensions.get('window'));
 
 export default class MainView extends React.Component {
+  static navigationOptions = {
+    title: 'Bok',
+    //header: null,
+  };
 
   constructor(props) {
     super(props);
@@ -195,8 +204,11 @@ export default class MainView extends React.Component {
 
   handleBackButtonPress() {
     this.setState({logtext:"back xxx"});
+    const backAction = NavigationActions.back({
+      //key: 'Profile'
+    });    
+    this.props.navigation.dispatch(backAction);
   }
-
 
     
   handleImageViewScroll(x) {
@@ -222,7 +234,7 @@ export default class MainView extends React.Component {
     this.setState({orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'});
   }
 
-  render() {
+  render() {    
     return (
      <View style={[styles.container]} onLayout={this.onLayout.bind(this)}>
         <View style={[styles.left]}>
@@ -243,6 +255,7 @@ export default class MainView extends React.Component {
               onPageNumberPress={this.handlePageNumberPress}
               showSpeaker={this.state.speaking}
             />
+              
             <BackButton onBackButtonPress={this.handleBackButtonPress}
 orientation={this.state.orientation} renderIf={'PORTRAIT'} />
 
@@ -394,3 +407,34 @@ class Log extends React.Component {
     )
   }
 }
+
+class StartScreen extends React.Component {
+  static navigationOptions = {
+    title: 'göm medheader: null eller bättre headerMode none'
+//    header: null,
+  };
+  render() {
+    const { navigate } = this.props.navigation;
+    return (
+      <View style={{flex:1, justifyContent: 'center',alignItems: 'center'}}>
+        <Text>Så gör man - Ljud- och bildböcker av Ann Gomér med illustrationer av Xxx Xxxxx</Text>
+        <Button
+          onPress={() => navigate('Main')}
+          title="Här ska man kunna välja bland 8 böcker"
+        />
+      </View>
+    );
+  }
+}
+
+const MainNavigator = StackNavigator(
+  {
+    Start: { screen: StartScreen },
+    Main: { screen: MainView },
+  },{
+    headerMode:'none'
+  }
+);
+
+AppRegistry.registerComponent('Flyg', () => MainNavigator);
+
