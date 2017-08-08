@@ -19,11 +19,15 @@ import {
   Dimensions,
   TouchableOpacity,
   Platform,
-  Button, //not needed
+  Button, //not needed in the future
 } from 'react-native';
+
 import Sound from 'react-native-sound';
-import { StackNavigator } from 'react-navigation';
-import { NavigationActions } from 'react-navigation';
+
+import { 
+  StackNavigator,
+  NavigationActions,
+} from 'react-navigation';
 
 var Environment = require('./environment.js');
 var Assets = require('./assets.js');
@@ -36,7 +40,6 @@ let xxxactive=false;
 Sound.setCategory('Playback');
 
 prettylog('assets',Assets);
-
 
 //weird-the map version above works fine on ios but didn't seem to work on android.
 //hm, now it seems to work.....
@@ -89,7 +92,7 @@ var styles = StyleSheet.create({
     flex: 1, 
     justifyContent: 'center', 
     flexDirection: 'column',
-    alignItems: 'center', //or flex-start 
+    alignItems: 'flex-start', //or center xxx 
   },
 
   
@@ -159,7 +162,7 @@ export default class MainView extends React.Component {
       activeFrame: 0,
       scrollEnabled: true,
       speaking: false,
-      logtext: '----'+this.props.navigation.state.params.book,
+      logtext: 'Entering '+this.props.navigation.state.params.book,
       //load 2 images from start, or all images:
       framesToLoad: Environment.gradualLoad ? 2 : Assets.images[this.book].length, 
     };
@@ -171,7 +174,6 @@ export default class MainView extends React.Component {
   }
   
   componentDidMount() {
-
   }
   
   componentWillUnmount() {
@@ -205,10 +207,11 @@ export default class MainView extends React.Component {
     this._imageView.forcedScrollChild(frame);
   }
   
+  
+  
   delayedPlay(frame,delay) {
     this.speakerTimerID = setTimeout(()=>{
       console.log('delayedPlay');
-      this.setState({logtext: JSON.stringify(this.sounds[frame]._filename.substr(-20))});
       clearTimeout(this.scrollLockTimerID);
       this.setState({scrollEnabled:false,speaking:true});
       this.forcedScrollParent(frame);
@@ -226,14 +229,26 @@ export default class MainView extends React.Component {
   }
     
   handlePageNumberPress(frame) {
-    this.setState({logtext:this.state.framesToLoad});
+    this.setState({logtext:(uglyGlobalSwipeOutsidexxx?'(OUT)':'(IN) ')+(this.state.scrollEnabled ? '(E)':'(D)')+'('+xxxcounter+')('+'x'+')'})
+    
+    
+    this.refs.xxx.measure( (fx, fy, width, height, px, py) => {
+            const text=//'Component width is: ' + width +
+                       //'Component height is: ' + height +
+                       //'X offset to frame: ' + fx +
+                       //'Y offset to frame: ' + fy +
+                      'x:' + px; //+
+                       //'Y offset to page: ' + py;
+            this.setState({logtext:text})
+        });        
+    
+    
     if (!this.state.speaking && this.state.activeFrame==frame && frame!=0) {
-      this.delayedPlay(frame,1);
+      //xxx this.delayedPlay(frame,1);
     }
   }
 
   handleBackButtonPress() {
-    this.setState({logtext:"back xxx"});
     const backAction = NavigationActions.back({
       //key: 'Profile'
     });    
@@ -242,9 +257,10 @@ export default class MainView extends React.Component {
   }
 
     
-  handleImageViewScroll(x) {
+  handleImageViewScroll(e) {
+    const x=e.contentOffset.x;
     const closestFramexxx= Math.floor((x+imwidth/2)/imwidth);
-    this.setState({logtext:'->'+(uglyGlobalSwipeOutsidexxx?'outside':'inside')+' '+x+' '+(this.state.scrollEnabled ? ' scroll Enabled':' scoll Disabled')+' '+xxxcounter})
+    this.setState({logtext:(uglyGlobalSwipeOutsidexxx?'(OUT)':'(IN) ')+(this.state.scrollEnabled ? '(E)':'(D)')+'('+xxxcounter+')('+x+')('+JSON.stringify(e)+')(scroll)'})
     const leftBorderFrame = Math.floor(x/imwidth);
     const approachingFrame = Math.floor(x/imwidth+Environment.delta);
     const signedOffset = ((x+imwidth/2)%imwidth-imwidth/2)/imwidth;//simplify???
@@ -262,18 +278,22 @@ export default class MainView extends React.Component {
       this.setState({scrollEnabled:false});
       this.forcedScrollParent(closestFramexxx);
       //xxx this timer must be cleared on unmount
-      this.xxxTimerID = setTimeout(()=>{
-        this.setState({scrollEnabled:true});
-        uglyGlobalSwipeOutsidexxx=false;
-        xxxactive=false;
-        this.setState({logtext:'timing out'});
-      },300);
+       this.xxxTimerID = setTimeout(()=>{
+         this.setState({scrollEnabled:true});
+         uglyGlobalSwipeOutsidexxx=false;
+         xxxactive=false;
+         this.setState({logtext:'timing out'});
+       },2000);
       
     }
   }
 
   handleImageViewMove(e) {
     //this.setState({logtext: '('+e.locationX+')('+e.pageX+')('+e.identifier+')('+e.target+')'});
+//    this.setState({logtext:(uglyGlobalSwipeOutsidexxx?'(OUT)':'(IN) ')+(this.state.scrollEnabled ? '(E)':'(D)')+'('+xxxcounter+')('+'x'+')(move)'})
+  
+    this.setState({logtext:(uglyGlobalSwipeOutsidexxx?'(OUT)':'(IN) ')+(this.state.scrollEnabled ? '(E)':'(D)')+'('+xxxcounter+')('+(-1)+')('+(e.identifier)+')(move)'})
+  
     
     if (e.pageX<184 && !uglyGlobalSwipeOutsidexxx) { //xxxxxxx test
       uglyGlobalSwipeOutsidexxx=true;
@@ -284,6 +304,8 @@ export default class MainView extends React.Component {
         //this.forcedScrollParent(closestFramexxx);
         //},1000);
   
+    } else if (e.pageX>=184){
+      uglyGlobalSwipeOutsidexxx=false;
     }
   }
 
@@ -291,8 +313,18 @@ export default class MainView extends React.Component {
   
   onLayout(e) {
     const {width, height} = Dimensions.get('window');
-    //this.setState({logtext:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'});
     this.setState({orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'});
+    
+    this.refs.xxx.measure( (fx, fy, width, height, px, py) => {
+            const text=//'Component width is: ' + width +
+                       //'Component height is: ' + height +
+                       //'X offset to frame: ' + fx +
+                       //'Y offset to frame: ' + fy +
+                      ' x:' + px //+
+                       //'Y offset to page: ' + py;
+            this.setState({logtext:text})
+        });        
+    
   }
 
   render() {
@@ -304,7 +336,7 @@ export default class MainView extends React.Component {
         </View>
         <View style={[styles.middle]}>
           <View style={[styles.mainContent]}>
-            <View style={[styles.imageViewContainer]}>
+            <View style={[styles.imageViewContainer]} ref='xxx'>
               <ImageView onLayout={this._onLayout}
                 ref={instance => { this._imageView = instance; }}
                 onImageViewScroll={this.handleImageViewScroll}
@@ -324,10 +356,12 @@ export default class MainView extends React.Component {
             <BackButton onBackButtonPress={this.handleBackButtonPress}
 orientation={this.state.orientation} renderIf={'PORTRAIT'} />
 
-            {<Log text={this.state.logtext} />}
+            
           </View>
         </View>
-        <View style={[styles.right]} />
+        <View style={[styles.right]}>
+            {<Log text={this.state.logtext} />}
+        </View>
       </View>
 
     );
@@ -347,7 +381,7 @@ class ImageView extends React.Component {
   
   handleScroll(e) {
     //prettylog("scroll event",e.nativeEvent);
-    this.props.onImageViewScroll(e.nativeEvent.contentOffset.x);
+    this.props.onImageViewScroll(e.nativeEvent);
   }
   
   handleMove(e) {
@@ -475,7 +509,7 @@ class Log extends React.Component {
   }
   render() {
     return (
-      <Text style={{ color: 'white' }}>Log: {this.props.text}</Text>
+      <Text style={{ color: 'white', fontFamily: 'Courier' }}>Log: {this.props.text}</Text>
     )
   }
 }

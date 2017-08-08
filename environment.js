@@ -1,6 +1,6 @@
 var _Environments = {
   ios: {
-    playDelay: 800*2, //milliseconds, 
+    playDelay: 800, //milliseconds, 
     delta: 0.25, //should not exeed 0.3
     deceleration: 'fast', 
     animateForcedScroll: true,
