@@ -1,4 +1,11 @@
+//xxx timingen funkar inte riktigt vid uglyoutside. flera outside triggas fast bara en //borde göra det. 
+
+
 //ändra alla var till let eller const
+//xxx är scrollenabled ett riktigt state som påverkar render, eller kan det vara en 
+//uglyglobal istället?
+
+
 import {AppRegistry} from 'react-native';
 
 import React, { Component } from 'react';
@@ -21,31 +28,57 @@ import { NavigationActions } from 'react-navigation';
 var Environment = require('./environment.js');
 var Assets = require('./assets.js');
 
+let uglyGlobalSwipeOutsidexxx=false;
+let xxxcounter=0;
+let xxxactive=false;
+
 // Enable playback in silence mode (iOS only)
 Sound.setCategory('Playback');
 
 prettylog('assets',Assets);
 
-const sounds = Assets.soundFiles.map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
 
 //weird-the map version above works fine on ios but didn't seem to work on android.
 //hm, now it seems to work.....
-//let sounds=[];
-//for (let i=0;i<Assets.soundFiles.length;i++) {
-//  const oneSound=new Sound(Assets.soundFiles[i], Sound.MAIN_BUNDLE);
-//  sounds.push(oneSound);
-//}
+let oldSounds=[];
+for (let i=0;i<Assets.xxxSoundFiles.length;i++) {
+  console.log('====================================');
+  const oneSound=new Sound(Assets.xxxSoundFiles[i], Sound.MAIN_BUNDLE, (error)=>{if (error){console.log('failed to load',error);return;}console.log('duration '+oneSound.getDuration())});
+  oldSounds.push(oneSound);
+}
+
+console.log(Assets.xxxSoundFiles[0]);
+  var whoosh = new Sound(Assets.xxxSoundFiles[0], Sound.MAIN_BUNDLE, (error) => {
+    if (error) {
+      console.log('failed to load the sound '+f, error);
+      return;
+    }
+    // loaded successfully
+    console.log('duration in seconds: ' + whoosh.getDuration() + 'number of channels: ' + whoosh.getNumberOfChannels());
+  });
+
+
+
+
+
+
+
+//const oldSounds = Assets.xxxSoundFiles.map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
+
 
 //constants for defining size of components
-//better as properties of SoundTest?
+//better as properties of MainView?
+//xxx putting it here as globals only works if all books have the same number of images. 
 const screenwidth = Dimensions.get('window').width;
 const screenheight = Dimensions.get('window').height;
 const imwidth = Math.min(screenwidth,screenheight)*Environment.imagereduction;
 const imheight = imwidth / (Environment.aspectRatio*Environment.imageSideSpace);
-const indicatorwidth = imwidth/Assets.photos.length/1.5;
+
+const indicatorwidth = imwidth/Assets.images[Assets.mainBookName].length/1.5; 
 const indicatorradius = indicatorwidth/2;
-const indicatormargin = (imwidth/Assets.photos.length-indicatorwidth)/2;
+const indicatormargin = (imwidth/Assets.images[Assets.mainBookName].length-indicatorwidth)/2;
 const speakerwidth = indicatorwidth*0.8;
+
 
 //stylesheets
 var styles = StyleSheet.create({
@@ -73,7 +106,7 @@ var styles = StyleSheet.create({
     flex: 1, 
     justifyContent: 'center', 
     flexDirection: 'column',
-    alignItems: 'flex-start', 
+    alignItems: 'center', //or flex-start 
   },
 
   
@@ -127,7 +160,7 @@ prettylog("windowdimensions",Dimensions.get('window'));
 export default class MainView extends React.Component {
   static navigationOptions = {
     title: 'Bok',
-    //header: null,
+    gesturesEnabled: false,
   };
 
   constructor(props) {
@@ -137,13 +170,22 @@ export default class MainView extends React.Component {
       activeFrame: 0,
       scrollEnabled: true,
       speaking: false,
-      logtext: JSON.stringify(Platform),
-      framesToLoad: Environment.gradualLoad ? 2 : Assets.photos.length //load 2 images from start, or all images
+      logtext: '----'+this.props.navigation.state.params.book,
+      framesToLoad: Environment.gradualLoad ? 2 : Assets.images[this.props.navigation.state.params.book].length, //load 2 images from start, or all images
+      book: this.props.navigation.state.params.book,
     };
     this.handleImageViewScroll = this.handleImageViewScroll.bind(this);
+    this.handleImageViewMove = this.handleImageViewMove.bind(this);
+    
     this.handlePageNumberPress = this.handlePageNumberPress.bind(this);
     this.handleBackButtonPress = this.handleBackButtonPress.bind(this);
     //this.pageNumberPressTime=0;
+    
+    
+    this.images2xxx=Assets.images[this.props.navigation.state.params.book];
+    //this.sounds = Assets.soundFiles[this.props.navigation.state.params.book].map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
+    //this.sounds = Assets.xxxSoundFiles.map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
+    //this.sounds = oldSounds;
   }
   
   componentDidMount() {
@@ -151,8 +193,11 @@ export default class MainView extends React.Component {
   }
   
   componentWillUnmount() {
-      clearTimeout(this.speakerTimerID);
-      clearTimeout(this.scrollLockTimerID);
+    clearTimeout(this.speakerTimerID);
+    clearTimeout(this.scrollLockTimerID);
+    if (this.state.speaking) {
+      oldSounds[this.state.activeFrame].stop();
+    }
   }
 
   componentDidUpdate(prevProps, prevState) {    
@@ -161,6 +206,7 @@ export default class MainView extends React.Component {
       if (Environment.gradualLoad) {
         //load one frame beyond current active frame. This state can only increase but not decrease. When scrolling backwards, all frames that have been shown remain loaded. 
 
+        //xxx this timeout must be cleard in unmount
         setTimeout(()=>{this.setState((prevState,props) => ({framesToLoad:Math.max(this.state.activeFrame+2,prevState.framesToLoad)}))},100);
         
       }
@@ -179,17 +225,19 @@ export default class MainView extends React.Component {
   
   delayedPlay(frame,delay) {
     this.speakerTimerID = setTimeout(()=>{
-      //console.log('delayedPlay '+(frame)+ ' ');
+      console.log('delayedPlay');
+      this.setState({logtext: JSON.stringify(oldSounds[frame]._filename.substr(-20))});
       clearTimeout(this.scrollLockTimerID);
       this.setState({scrollEnabled:false,speaking:true});
       this.forcedScrollParent(frame);
-      sounds[frame].play((success) => {
+
+      oldSounds[frame].play((success) => {
         if (success) {
           this.setState({scrollEnabled:true,speaking:false});
           //console.log('successfully finished playing '+ (frame));
         } else {
           this.setState({scrollEnabled:true,speaking:false});
-          console.log('playback of '+(frame)+'failed');
+          //console.log('playback of '+(frame)+'failed');
         }
       });
     },delay);
@@ -208,10 +256,13 @@ export default class MainView extends React.Component {
       //key: 'Profile'
     });    
     this.props.navigation.dispatch(backAction);
+    //xxx ev bara om den inte pratar 
   }
 
     
   handleImageViewScroll(x) {
+    const closestFramexxx= Math.floor((x+imwidth/2)/imwidth);
+    this.setState({logtext:'->'+(uglyGlobalSwipeOutsidexxx?'outside':'inside')+' '+x+' '+(this.state.scrollEnabled ? ' scroll Enabled':' scoll Disabled')+' '+xxxcounter})
     const leftBorderFrame = Math.floor(x/imwidth);
     const approachingFrame = Math.floor(x/imwidth+Environment.delta);
     const signedOffset = ((x+imwidth/2)%imwidth-imwidth/2)/imwidth;//simplify???
@@ -219,10 +270,38 @@ export default class MainView extends React.Component {
     
     if (offset < Environment.delta) {
       this.setState({
-        activeFrame:approachingFrame,
+          activeFrame:approachingFrame,
       });
+    }
+    
+    if (uglyGlobalSwipeOutsidexxx && !xxxactive) {
+      xxxactive=true;
+      xxxcounter++;
+      this.setState({scrollEnabled:false});
+      this.forcedScrollParent(closestFramexxx);
+      //xxx this timer must be cleared on unmount
+      this.xxxTimerID = setTimeout(()=>{
+        this.setState({scrollEnabled:true});
+        uglyGlobalSwipeOutsidexxx=false;
+        xxxactive=false;
+        this.setState({logtext:'timing out'});
+      },300);
       
-      
+    }
+  }
+
+  handleImageViewMove(e) {
+    //this.setState({logtext: '('+e.locationX+')('+e.pageX+')('+e.identifier+')('+e.target+')'});
+    
+    if (e.pageX<184 && !uglyGlobalSwipeOutsidexxx) { //xxxxxxx test
+      uglyGlobalSwipeOutsidexxx=true;
+      //this.setState({scrollEnabled:false});
+      //this.xxxTimerID = setTimeout(()=>{
+        //this.setState({scrollEnabled:true});
+        //const closestFramexxx=1;
+        //this.forcedScrollParent(closestFramexxx);
+        //},1000);
+  
     }
   }
 
@@ -230,11 +309,12 @@ export default class MainView extends React.Component {
   
   onLayout(e) {
     const {width, height} = Dimensions.get('window');
-    this.setState({logtext:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'});
+    //this.setState({logtext:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'});
     this.setState({orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'});
   }
 
-  render() {    
+  render() {
+    const { params } = this.props.navigation.state;
     return (
      <View style={[styles.container]} onLayout={this.onLayout.bind(this)}>
         <View style={[styles.left]}>
@@ -246,14 +326,18 @@ export default class MainView extends React.Component {
               <ImageView onLayout={this._onLayout}
                 ref={instance => { this._imageView = instance; }}
                 onImageViewScroll={this.handleImageViewScroll}
+                onImageViewMove={this.handleImageViewMove}
                 scrollEnabled={this.state.scrollEnabled}
                 framesToLoad={this.state.framesToLoad}
+                book={this.state.book}
+                images2xxx={this.images2xxx}
               />
             </View>
             <ProgressView
               frame={this.state.activeFrame} 
               onPageNumberPress={this.handlePageNumberPress}
               showSpeaker={this.state.speaking}
+              images2xxx={this.images2xxx}
             />
               
             <BackButton onBackButtonPress={this.handleBackButtonPress}
@@ -273,6 +357,7 @@ class ImageView extends React.Component {
   constructor(props) {
     super(props);
     this.handleScroll=this.handleScroll.bind(this);
+    this.handleMove=this.handleMove.bind(this);
   }
   
   componentDidMount() {
@@ -282,6 +367,10 @@ class ImageView extends React.Component {
   handleScroll(e) {
     //prettylog("scroll event",e.nativeEvent);
     this.props.onImageViewScroll(e.nativeEvent.contentOffset.x);
+  }
+  
+  handleMove(e) {
+    this.props.onImageViewMove(e.nativeEvent);
   }
   
   forcedScrollChild(frame) {
@@ -298,9 +387,10 @@ class ImageView extends React.Component {
         showsHorizontalScrollIndicator={false}
         scrollEnabled={this.props.scrollEnabled}
         onScroll={this.handleScroll}
+        onResponderMove={this.handleMove}
         scrollEventThrottle={Environment.scrollThrottle}
       >
-        {Assets.photos.slice(0,this.props.framesToLoad).map((src, i) => {
+      {this.props.images2xxx.slice(0,this.props.framesToLoad).map((src, i) => {
           return (
             <Image
               key={i}
@@ -314,6 +404,10 @@ class ImageView extends React.Component {
     );
   }
 }
+
+
+//xxx {Assets.images[this.props.book].slice(0,this.props.framesToLoad).map((src, i) => {
+
 
 class SpeakerImage extends React.Component {
   render() {
@@ -371,7 +465,7 @@ class ProgressView extends React.Component {
     return (
       <View>
         <View style={[styles.progressView]}>
-          {Assets.photos.map((_, i) => {
+          {this.props.images2xxx.map((_, i) => {
             //would be good to make this content into a component
             let opacity=0.3;
             let showSpeakerCurrent=false;
@@ -410,17 +504,26 @@ class Log extends React.Component {
 
 class StartScreen extends React.Component {
   static navigationOptions = {
-    title: 'göm medheader: null eller bättre headerMode none'
-//    header: null,
+    title: 'Start',
   };
   render() {
     const { navigate } = this.props.navigation;
     return (
       <View style={{flex:1, justifyContent: 'center',alignItems: 'center'}}>
         <Text>Så gör man - Ljud- och bildböcker av Ann Gomér med illustrationer av Xxx Xxxxx</Text>
+      <Button style={{backgroundColor:'darkred'}}
+          onPress={() => navigate('Main',{ book: Assets.bookOrder[0] })}
+          title={Assets.bookTitles[Assets.bookOrder[0]]}
+        />
         <Button
-          onPress={() => navigate('Main')}
-          title="Här ska man kunna välja bland 8 böcker"
+          style={{backgroundColor:'darkblue'}}
+          onPress={() => navigate('Main',{ book: Assets.bookOrder[1] })}
+          title={Assets.bookTitles[Assets.bookOrder[1]]}
+        />
+        <Button
+          style={{backgroundColor:'darkgreen'}}
+          onPress={() => navigate('Main',{ book: Assets.bookOrder[2] })}
+          title={Assets.bookTitles[Assets.bookOrder[2]]}
         />
       </View>
     );
