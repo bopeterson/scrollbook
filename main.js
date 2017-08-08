@@ -1,10 +1,4 @@
-//xxx timingen funkar inte riktigt vid uglyoutside. flera outside triggas fast bara en //borde göra det. 
-
-
 //ändra alla var till let eller const
-//xxx är scrollenabled ett riktigt state som påverkar render, eller kan det vara en 
-//uglyglobal istället?
-
 
 import {AppRegistry} from 'react-native';
 
@@ -32,9 +26,7 @@ import {
 var Environment = require('./environment.js');
 var Assets = require('./assets.js');
 
-let uglyGlobalSwipeOutsidexxx=false;
-let xxxcounter=0;
-let xxxactive=false;
+
 
 // Enable playback in silence mode (iOS only)
 Sound.setCategory('Playback');
@@ -53,8 +45,6 @@ prettylog('assets',Assets);
 const oldSounds = Assets.soundFiles['plane'].map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
 
 //constants for defining size of components
-//better as properties of MainView?
-//xxx putting it here as globals only works if all books have the same number of images. 
 const screenwidth = Dimensions.get('window').width;
 const screenheight = Dimensions.get('window').height;
 const imwidth = Math.min(screenwidth,screenheight)*Environment.imagereduction;
@@ -92,7 +82,7 @@ var styles = StyleSheet.create({
     flex: 1, 
     justifyContent: 'center', 
     flexDirection: 'column',
-    alignItems: 'flex-start', //or center xxx 
+    alignItems: 'center', //or flex-start xxx 
   },
 
   
@@ -153,6 +143,8 @@ export default class MainView extends React.Component {
     super(props);
 
     //pseudo-states
+    this.swipeOutside=false;
+    this.closestFrame=0;
     this.book=this.props.navigation.state.params.book;
     this.images=Assets.images[this.book];
     this.sounds = Assets.soundFiles[this.book].map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
@@ -229,22 +221,8 @@ export default class MainView extends React.Component {
   }
     
   handlePageNumberPress(frame) {
-    this.setState({logtext:(uglyGlobalSwipeOutsidexxx?'(OUT)':'(IN) ')+(this.state.scrollEnabled ? '(E)':'(D)')+'('+xxxcounter+')('+'x'+')'})
-    
-    
-    this.refs.xxx.measure( (fx, fy, width, height, px, py) => {
-            const text=//'Component width is: ' + width +
-                       //'Component height is: ' + height +
-                       //'X offset to frame: ' + fx +
-                       //'Y offset to frame: ' + fy +
-                      'x:' + px; //+
-                       //'Y offset to page: ' + py;
-            this.setState({logtext:text})
-        });        
-    
-    
     if (!this.state.speaking && this.state.activeFrame==frame && frame!=0) {
-      //xxx this.delayedPlay(frame,1);
+      this.delayedPlay(frame,1);
     }
   }
 
@@ -258,54 +236,34 @@ export default class MainView extends React.Component {
 
     
   handleImageViewScroll(e) {
-    const x=e.contentOffset.x;
-    const closestFramexxx= Math.floor((x+imwidth/2)/imwidth);
-    this.setState({logtext:(uglyGlobalSwipeOutsidexxx?'(OUT)':'(IN) ')+(this.state.scrollEnabled ? '(E)':'(D)')+'('+xxxcounter+')('+x+')('+JSON.stringify(e)+')(scroll)'})
+    const x = e.contentOffset.x;
     const leftBorderFrame = Math.floor(x/imwidth);
     const approachingFrame = Math.floor(x/imwidth+Environment.delta);
     const signedOffset = ((x+imwidth/2)%imwidth-imwidth/2)/imwidth;//simplify???
     const offset = Math.abs(signedOffset);
+    this.closestFrame = Math.floor((x+imwidth/2)/imwidth);
     
     if (offset < Environment.delta) {
       this.setState({
           activeFrame:approachingFrame,
       });
     }
-    
-    if (uglyGlobalSwipeOutsidexxx && !xxxactive) {
-      xxxactive=true;
-      xxxcounter++;
-      this.setState({scrollEnabled:false});
-      this.forcedScrollParent(closestFramexxx);
-      //xxx this timer must be cleared on unmount
-       this.xxxTimerID = setTimeout(()=>{
-         this.setState({scrollEnabled:true});
-         uglyGlobalSwipeOutsidexxx=false;
-         xxxactive=false;
-         this.setState({logtext:'timing out'});
-       },2000);
-      
-    }
   }
-
+  
   handleImageViewMove(e) {
-    //this.setState({logtext: '('+e.locationX+')('+e.pageX+')('+e.identifier+')('+e.target+')'});
-//    this.setState({logtext:(uglyGlobalSwipeOutsidexxx?'(OUT)':'(IN) ')+(this.state.scrollEnabled ? '(E)':'(D)')+'('+xxxcounter+')('+'x'+')(move)'})
-  
-    this.setState({logtext:(uglyGlobalSwipeOutsidexxx?'(OUT)':'(IN) ')+(this.state.scrollEnabled ? '(E)':'(D)')+'('+xxxcounter+')('+(-1)+')('+(e.identifier)+')(move)'})
-  
-    
-    if (e.pageX<184 && !uglyGlobalSwipeOutsidexxx) { //xxxxxxx test
-      uglyGlobalSwipeOutsidexxx=true;
-      //this.setState({scrollEnabled:false});
-      //this.xxxTimerID = setTimeout(()=>{
-        //this.setState({scrollEnabled:true});
-        //const closestFramexxx=1;
-        //this.forcedScrollParent(closestFramexxx);
-        //},1000);
-  
-    } else if (e.pageX>=184){
-      uglyGlobalSwipeOutsidexxx=false;
+    //this hardcoded xxx must be calucaled from xxx.measure
+    if (!Environment.allowSwipeOutsideImage) {
+      if (e.pageX<184 && !this.swipeOutside) {
+        this.swipeOutside=true;
+        this.setState({scrollEnabled:false});
+        this.forcedScrollParent(this.closestFrame);
+        this.xxxTimerID = setTimeout(()=>{
+          this.setState({scrollEnabled:true});
+          this.swipeOutside=false;
+        },300);
+      } else if (e.pageX>=184){
+        this.swipeOutside=false;
+      }
     }
   }
 
@@ -387,7 +345,7 @@ class ImageView extends React.Component {
   handleMove(e) {
     this.props.onImageViewMove(e.nativeEvent);
   }
-  
+    
   forcedScrollChild(frame) {
     this._scrollView.scrollTo({x: frame*imwidth, y: 0, animated: Environment.animateForcedScroll})
   }
