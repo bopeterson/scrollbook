@@ -81,17 +81,17 @@ var _Assets = {
     ],
     train:   [
       'tada.mp3', //only used while testing
-      'flyg1.mp3',
-      'flyg1.mp3',
-      'flyg1.mp3',
-      'flyg1.mp3',
-      'flyg1.mp3',
-      'flyg1.mp3',
+      'flyg4.mp3',
+      'flyg4.mp3',
+      'flyg4.mp3',
+      'flyg4.mp3',
+      'flyg4.mp3',
+      'flyg4.mp3',
     ],
     dentist:   [
       'tada.mp3', //only used while testing
-      'flyg1.mp3',
-      'flyg2.mp3',
+      'flyg3.mp3',
+      'flyg3.mp3',
     ],
   },
   

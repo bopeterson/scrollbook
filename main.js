@@ -40,31 +40,14 @@ prettylog('assets',Assets);
 
 //weird-the map version above works fine on ios but didn't seem to work on android.
 //hm, now it seems to work.....
-let oldSounds=[];
-for (let i=0;i<Assets.xxxSoundFiles.length;i++) {
-  console.log('====================================');
-  const oneSound=new Sound(Assets.xxxSoundFiles[i], Sound.MAIN_BUNDLE, (error)=>{if (error){console.log('failed to load',error);return;}console.log('duration '+oneSound.getDuration())});
-  oldSounds.push(oneSound);
-}
+//let oldSounds=[];
+//for (let i=0;i<Assets.soundFiles.length;i++) {
+//  console.log('====================================');
+//  const oneSound=new Sound(Assets.soundFiles[i], Sound.MAIN_BUNDLE, (error)=>{if (error){console.log('failed to load',error);return;}console.log('duration '+oneSound.getDuration())});
+//  oldSounds.push(oneSound);
+//}
 
-console.log(Assets.xxxSoundFiles[0]);
-  var whoosh = new Sound(Assets.xxxSoundFiles[0], Sound.MAIN_BUNDLE, (error) => {
-    if (error) {
-      console.log('failed to load the sound '+f, error);
-      return;
-    }
-    // loaded successfully
-    console.log('duration in seconds: ' + whoosh.getDuration() + 'number of channels: ' + whoosh.getNumberOfChannels());
-  });
-
-
-
-
-
-
-
-//const oldSounds = Assets.xxxSoundFiles.map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
-
+const oldSounds = Assets.soundFiles['plane'].map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
 
 //constants for defining size of components
 //better as properties of MainView?
@@ -165,27 +148,26 @@ export default class MainView extends React.Component {
 
   constructor(props) {
     super(props);
+
+    //pseudo-states
+    this.book=this.props.navigation.state.params.book;
+    this.images=Assets.images[this.book];
+    this.sounds = Assets.soundFiles[this.book].map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
+
     this.state = {
       orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT',
       activeFrame: 0,
       scrollEnabled: true,
       speaking: false,
       logtext: '----'+this.props.navigation.state.params.book,
-      framesToLoad: Environment.gradualLoad ? 2 : Assets.images[this.props.navigation.state.params.book].length, //load 2 images from start, or all images
-      book: this.props.navigation.state.params.book,
+      //load 2 images from start, or all images:
+      framesToLoad: Environment.gradualLoad ? 2 : Assets.images[this.book].length, 
     };
     this.handleImageViewScroll = this.handleImageViewScroll.bind(this);
     this.handleImageViewMove = this.handleImageViewMove.bind(this);
     
     this.handlePageNumberPress = this.handlePageNumberPress.bind(this);
     this.handleBackButtonPress = this.handleBackButtonPress.bind(this);
-    //this.pageNumberPressTime=0;
-    
-    
-    this.images2xxx=Assets.images[this.props.navigation.state.params.book];
-    //this.sounds = Assets.soundFiles[this.props.navigation.state.params.book].map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
-    //this.sounds = Assets.xxxSoundFiles.map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
-    //this.sounds = oldSounds;
   }
   
   componentDidMount() {
@@ -196,7 +178,7 @@ export default class MainView extends React.Component {
     clearTimeout(this.speakerTimerID);
     clearTimeout(this.scrollLockTimerID);
     if (this.state.speaking) {
-      oldSounds[this.state.activeFrame].stop();
+      this.sounds[this.state.activeFrame].stop();
     }
   }
 
@@ -226,12 +208,12 @@ export default class MainView extends React.Component {
   delayedPlay(frame,delay) {
     this.speakerTimerID = setTimeout(()=>{
       console.log('delayedPlay');
-      this.setState({logtext: JSON.stringify(oldSounds[frame]._filename.substr(-20))});
+      this.setState({logtext: JSON.stringify(this.sounds[frame]._filename.substr(-20))});
       clearTimeout(this.scrollLockTimerID);
       this.setState({scrollEnabled:false,speaking:true});
       this.forcedScrollParent(frame);
 
-      oldSounds[frame].play((success) => {
+      this.sounds[frame].play((success) => {
         if (success) {
           this.setState({scrollEnabled:true,speaking:false});
           //console.log('successfully finished playing '+ (frame));
@@ -329,15 +311,14 @@ export default class MainView extends React.Component {
                 onImageViewMove={this.handleImageViewMove}
                 scrollEnabled={this.state.scrollEnabled}
                 framesToLoad={this.state.framesToLoad}
-                book={this.state.book}
-                images2xxx={this.images2xxx}
+                images={this.images}
               />
             </View>
             <ProgressView
               frame={this.state.activeFrame} 
               onPageNumberPress={this.handlePageNumberPress}
               showSpeaker={this.state.speaking}
-              images2xxx={this.images2xxx}
+              images={this.images}
             />
               
             <BackButton onBackButtonPress={this.handleBackButtonPress}
@@ -390,7 +371,7 @@ class ImageView extends React.Component {
         onResponderMove={this.handleMove}
         scrollEventThrottle={Environment.scrollThrottle}
       >
-      {this.props.images2xxx.slice(0,this.props.framesToLoad).map((src, i) => {
+      {this.props.images.slice(0,this.props.framesToLoad).map((src, i) => {
           return (
             <Image
               key={i}
@@ -404,9 +385,6 @@ class ImageView extends React.Component {
     );
   }
 }
-
-
-//xxx {Assets.images[this.props.book].slice(0,this.props.framesToLoad).map((src, i) => {
 
 
 class SpeakerImage extends React.Component {
@@ -465,7 +443,7 @@ class ProgressView extends React.Component {
     return (
       <View>
         <View style={[styles.progressView]}>
-          {this.props.images2xxx.map((_, i) => {
+          {this.props.images.map((_, i) => {
             //would be good to make this content into a component
             let opacity=0.3;
             let showSpeakerCurrent=false;
