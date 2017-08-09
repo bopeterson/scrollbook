@@ -42,8 +42,8 @@ const _Assets = {
   mainTitleImage: require('./img/maintitle.png'),
   mainBookName: 'plane', //number of frames in this book defines the size of the indicators
   bookOrder: [
-    'plane',
     'train',
+    'plane',
     'dentist',
     'funeral',
     'restaurant',
@@ -81,6 +81,11 @@ const _Assets = {
       require('./img/flyg005.jpg'),
     ],
     train: [
+      require('./img/titletrain.png'),
+      require('./img/titletrain.png'),
+      require('./img/titletrain.png'),
+      require('./img/titletrain.png'),
+      require('./img/titletrain.png'),
       require('./img/titletrain.png'),
     ],
     dentist: [

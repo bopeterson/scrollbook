@@ -5,7 +5,8 @@ import {
 
 const _Environments = {
   ios: {
-    playDelay: 100, //milliseconds, 
+    playDelay1: 100, //milliseconds until when scroll is locked and speaker icon shown 
+    playDelay2: 500, //milliseconds until sound is played after scoll is locked
     delta: 0.25, //should not exeed 0.3
     deceleration: 'fast', 
     animateForcedScroll: true,
@@ -15,9 +16,11 @@ const _Environments = {
     scrollThrottle: 16, //1 is tested, 16 is almost tested xxx
     gradualLoad: true,
     showLog: false,
+    showBookTitle: false,
   },
   android: {
-    playDelay: 100, //milliseconds, 
+    playDelay1: 100, //milliseconds, 
+    playDelay2: 500, //milliseconds, 
     delta: 0.25, //should not exeed 0.3
     deceleration: 'fast', 
     animateForcedScroll: true,
@@ -27,6 +30,7 @@ const _Environments = {
     scrollThrottle: 16, //1 is tested, 16 is almost tested xxx
     gradualLoad: true,
     showLog: false,
+    showBookTitle: false,
   }
   
 };

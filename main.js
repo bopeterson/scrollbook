@@ -29,8 +29,10 @@ Sound.setCategory('Playback');
 prettylog('assets',Assets);
 
 //constants for defining size of components
-const screenwidth = Dimensions.get('window').width;
-const screenheight = Dimensions.get('window').height;
+//const screenwidth = Dimensions.get('window').width; 
+//const screenheight = Dimensions.get('window').height;
+const {width:screenwidth, height:screenheight}=Dimensions.get('window');
+
 const imwidth = Math.min(screenwidth,screenheight)*Environment.imagereduction;
 const imheight = imwidth / (Environment.aspectRatio*Environment.imageSideSpace);
 
@@ -39,14 +41,33 @@ const indicatorradius = indicatorwidth/2;
 const indicatormargin = (imwidth/Assets.images[Assets.mainBookName].length-indicatorwidth)/2;
 const speakerwidth = indicatorwidth*0.8;
 
+//Guideline sizes are based on standard ~5" screen mobile device
+const guidelineBaseWidth = 350;
+const guidelineBaseHeight = 680;
+const scale = size => Math.min(screenwidth,screenheight) / guidelineBaseWidth * size;
+const verticalScale = size => Math.max(screenheight,screenwidth) / guidelineBaseHeight * size;
+const moderateScale = (size, factor = 0.5) => size + ( scale(size) - size ) * factor;
+/*
+moderate scale on various devices with factor=0.5 and 0.8
+iphone 5s: 95, 93
+iphonw 6s: 103, 105
+iphone 7: 103, 105
+iphone 7+: 109, 114
+ipad pro 9.7": 159, 195
+ipad pro 10.5": 169, 210
+ipad pro 12.9": 196, 254
+
+
+*/
+
 
 //stylesheets
 const styles = StyleSheet.create({
   container: {flex: 1, 
     flexDirection: 'row',
-    backgroundColor: 'black', //black
+    backgroundColor: 'black',
   },
-  
+
   left: {
     flex:1 ,
     flexDirection: 'column',
@@ -76,18 +97,17 @@ const styles = StyleSheet.create({
     alignItems: 'center', //or flex-start xxx 
   },
 
-  
   imageViewContainer: {
     width: imwidth, //* in middle instead???
     height: imheight, //not needed?
     backgroundColor: '#222222'
   },
-  
+
   image: { 
     width: imwidth, 
     height: imheight 
   },
-  
+
   indicator: {
     width: indicatorwidth, 
     height: indicatorwidth,
@@ -97,11 +117,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center', 
     alignItems: 'center'
   },
-  
+
   progressView: { 
     flexDirection: 'row'
   },
-  
+
   speaker: {
     width: speakerwidth, 
     height: speakerwidth
@@ -113,8 +133,79 @@ const styles = StyleSheet.create({
     margin: indicatormargin, 
   },
 
-});
+  landscapeStartContainer: {
+    flex:1, 
+    marginTop:0, 
+    backgroundColor:'black',//'red'
+  },
 
+  portraitStartContainer: {
+    flex:1,
+    backgroundColor:'black',//'black'
+  },
+
+  landscapeStartMainTitle: {
+    flex:1, 
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor:'black',//'green',
+  },
+
+  portraitStartMainTitle: {
+    flex:1, 
+    justifyContent:'center',
+    alignItems:'center',
+    backgroundColor:'black',//'green',
+  },
+
+  landscapeStartImageBlock: {
+    flex:3, 
+    flexDirection: 'row', 
+    justifyContent:'center',
+    alignItems:'center', 
+    backgroundColor:'black',//'darkblue',
+  },
+
+  portraitStartImageBlock: {
+    flex:2, 
+    flexDirection: 'row', 
+    justifyContent:'center',
+    alignItems:'center',
+  },
+
+  portraitStartSubContainer: {//adjust for status bar on top of portrait
+    flex:1,marginTop:20, 
+    backgroundColor:'black',//'black',
+  },  
+
+  titleText: {
+    flex:1,maxWidth:'100%',
+    backgroundColor:'black',//'steelblue'
+  },
+
+  imageButtonTouchable: {
+    flex:1,
+    margin:8,
+    backgroundColor:'black',//'green',
+  },
+
+  imageButtonImage: {
+    flex:1,
+    height:undefined,
+    width:undefined,
+    backgroundColor:'black',//'yellow',
+  },
+
+  bookTitle: {
+    fontWeight:'bold',
+    fontSize: moderateScale(14,0.7),
+    margin:4, 
+    textAlign:'center',
+    backgroundColor:'black',
+    color: '#f4c053',
+  }
+
+});
 
 //debug functions
 function prettylog(text,obj) {
@@ -143,7 +234,7 @@ export default class MainView extends React.Component {
       activeFrame: 0,
       scrollEnabled: true,
       speaking: false,
-      logtext: JSON.stringify(Environment),
+      logtext: Math.floor(moderateScale(100))+' '+Math.floor(moderateScale(100,0.8)),
       //load 2 images from start, or all images:
       framesToLoad: Environment.gradualLoad ? 2 : Assets.images[this.book].length, 
     };
@@ -151,12 +242,13 @@ export default class MainView extends React.Component {
     this.handlePageNumberPress = this.handlePageNumberPress.bind(this);
     this.handleBackButtonPress = this.handleBackButtonPress.bind(this);
   }
-  
+
   componentDidMount() {
   }
-  
+
   componentWillUnmount() {
     clearTimeout(this.speakerTimerID);
+    clearTimeout(this.speakerTimer2ID);
     clearTimeout(this.scrollLockTimerID);
     clearTimeout(this.loadTimerID);
     if (this.state.speaking) {
@@ -177,9 +269,10 @@ export default class MainView extends React.Component {
       }
       //always clear queued sounds that havent't started when moved to a new frame
       clearTimeout(this.speakerTimerID);
+      clearTimeout(this.speakerTimer2ID);
       //don't play sound when moved to start frame
       if (this.state.activeFrame>0) {
-        this.delayedPlay(this.state.activeFrame,Environment.playDelay);
+        this.delayedPlay(this.state.activeFrame,Environment.playDelay1,Environment.playDelay2);
       }
     }
   }
@@ -187,29 +280,30 @@ export default class MainView extends React.Component {
   forcedScrollParent(frame) {
     this._imageView.forcedScrollChild(frame);
   }
-  
-  delayedPlay(frame,delay) {
+
+  delayedPlay(frame,delay1,delay2) {
     this.speakerTimerID = setTimeout(()=>{
       console.log('delayedPlay');
       clearTimeout(this.scrollLockTimerID);
       this.setState({scrollEnabled:false,speaking:true});
       this.forcedScrollParent(frame);
-
-      this.sounds[frame].play((success) => {
-        if (success) {
-          this.setState({scrollEnabled:true,speaking:false});
-          //console.log('successfully finished playing '+ (frame));
-        } else {
-          this.setState({scrollEnabled:true,speaking:false});
-          //console.log('playback of '+(frame)+'failed');
-        }
-      });
-    },delay);
+      this.speakerTimer2ID = setTimeout(()=>{
+        this.sounds[frame].play((success) => {
+          if (success) {
+            this.setState({scrollEnabled:true,speaking:false});
+            //console.log('successfully finished playing '+ (frame));
+          } else {
+            this.setState({scrollEnabled:true,speaking:false});
+            //console.log('playback of '+(frame)+'failed');
+          }
+        });
+      },delay2);
+    },delay1);
   }
-    
+
   handlePageNumberPress(frame) {
     if (!this.state.speaking && this.state.activeFrame==frame && frame!=0) {
-      this.delayedPlay(frame,1);
+      this.delayedPlay(frame,1,1);
     }
   }
 
@@ -329,7 +423,6 @@ class ImageView extends React.Component {
   }
 }
 
-
 class SpeakerImage extends React.Component {
   render() {
     if (this.props.showSpeaker) {
@@ -445,27 +538,26 @@ class StartScreen extends React.Component {
     this.setState({orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'});
   }
   
-  
   handleImagePress(book) {
     const { navigate } = this.props.navigation;
     navigate('Main',{ book: book })
   }
-  
+
   render() {
     const { navigate } = this.props.navigation;
     if (this.state.orientation=='LANDSCAPE') {
       return (
-        <View style={{flex:1, marginTop:0, backgroundColor:'red'}} onLayout={this.onLayout.bind(this)}>
-          <View style={{flex:2, flexDirection: 'row', justifyContent:'center',alignItems:'center', backgroundColor:'darkblue'}}>
+        <View style={[styles.landscapeStartContainer]} onLayout={this.onLayout.bind(this)}>
+          <View style={[styles.landscapeStartImageBlock]}>
             <ImageButton onImagePress={this.handleImagePress} bookNo={0}></ImageButton>
             <ImageButton onImagePress={this.handleImagePress} bookNo={1}></ImageButton>
             <ImageButton onImagePress={this.handleImagePress} bookNo={2}></ImageButton>
             <ImageButton onImagePress={this.handleImagePress} bookNo={3}></ImageButton>
           </View>
-          <View style={{flex:1, justifyContent:'center',alignItems:'center',backgroundColor:'green'}}>
+          <View style={[styles.landscapeStartMainTitle]}>
             <TitleText source={Assets.mainTitleImage}></TitleText>
           </View>
-          <View style={{flex:2, flexDirection: 'row', justifyContent:'center',alignItems:'center', backgroundColor:'darkblue'}}>
+          <View style={[styles.landscapeStartImageBlock]}>
             <ImageButton onImagePress={this.handleImagePress} bookNo={4}></ImageButton>
             <ImageButton onImagePress={this.handleImagePress} bookNo={5}></ImageButton>
             <ImageButton onImagePress={this.handleImagePress} bookNo={6}></ImageButton>
@@ -475,24 +567,24 @@ class StartScreen extends React.Component {
       )
     } else { //PORTRAIT
       return (
-        <View style={{flex:1,backgroundColor:'black'}}>
-          <View style={{flex:1,marginTop:20, backgroundColor:'black'}} onLayout={this.onLayout.bind(this)}>
-            <View style={{flex:1, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
+        <View style={[styles.portraitStartContainer]} onLayout={this.onLayout.bind(this)}>
+          <View style={[styles.portraitStartSubContainer]}>
+            <View style={[styles.portraitStartImageBlock]}>
               <ImageButton onImagePress={this.handleImagePress} bookNo={0}></ImageButton>
               <ImageButton onImagePress={this.handleImagePress} bookNo={1}></ImageButton>
             </View>
-            <View style={{flex:1, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
+            <View style={[styles.portraitStartImageBlock]}>
               <ImageButton onImagePress={this.handleImagePress} bookNo={2}></ImageButton>
               <ImageButton onImagePress={this.handleImagePress} bookNo={3}></ImageButton>
             </View>
-            <View style={{flex:1, justifyContent:'center',alignItems:'center'}}>
+            <View style={[styles.portraitStartMainTitle]}>
               <TitleText source={Assets.mainTitleImage}></TitleText>
             </View>
-            <View style={{flex:1, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
+            <View style={[styles.portraitStartImageBlock]}>
               <ImageButton onImagePress={this.handleImagePress} bookNo={4}></ImageButton>
               <ImageButton onImagePress={this.handleImagePress} bookNo={5}></ImageButton>
             </View>
-            <View style={{flex:1, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
+            <View style={[styles.portraitStartImageBlock]}>
               <ImageButton onImagePress={this.handleImagePress} bookNo={6}></ImageButton>
               <ImageButton onImagePress={this.handleImagePress} bookNo={7}></ImageButton>
             </View>
@@ -503,11 +595,27 @@ class StartScreen extends React.Component {
   }
 }
 
+
 class TitleText extends React.Component {
   render() {
     return ( 
+      <Text 
+        style={{fontFamily: 'Iowan Old Style', fontWeight: 'bold', color:'#f4c053',fontSize:moderateScale(28,0.9)}} 
+        resizeMode = {'contain'} 
+        source={this.props.source}
+      >
+        Så gör man
+      </Text>
+    )
+  }
+}
+
+
+class OldTitleText extends React.Component {
+  render() {
+    return ( 
       <Image 
-        style={{flex:1,backgroundColor:'steelblue',maxWidth:'100%'}} 
+        style={[styles.titleText]} 
         resizeMode = {'contain'} 
         source={this.props.source}
       >
@@ -521,26 +629,42 @@ class ImageButton extends React.Component {
     super(props);
     this.handlePress=this.handlePress.bind(this);
   }
-  
+
   handlePress(e,book) {    
     //let parent handle:     
     this.props.onImagePress(book);
   }
-  
+
   render() {
     this.book=Assets.bookOrder[this.props.bookNo]; //why doesn't just book whithout this work when sent to handlePress?
     this.src=Assets.titleImages[this.book];
     return (
       <TouchableOpacity 
-        style={{flex:1,margin:10,backgroundColor:'green'}}
+        style={[styles.imageButtonTouchable]}
         onPress={(e) => this.handlePress(e,this.book)} 
         activeOpacity={0.6}
       >
-        <Image style={{justifyContent:'flex-end',maxHeight:'100%',maxWidth:'100%',backgroundColor:'yellow'}} resizeMode = {'contain'} source={this.src}>
-        <Text style={{fontWeight:'bold',margin:8, textAlign:'center',backgroundColor: 'rgba(255,255,255,0.5)',color: 'black'}}>{Assets.bookTitles[this.book]}</Text>
-        </Image> 
+        <Image style={[styles.imageButtonImage]} resizeMode = {'contain'} source={this.src}>
+        
+        </Image>
+        <BookTitle book={Assets.bookTitles[this.book]}>
+        </BookTitle>
       </TouchableOpacity>
     )
+  }
+}
+
+class BookTitle extends React.Component {
+  render() {
+    if (Environment.showBookTitle) {
+      return(
+        <Text style={[styles.bookTitle]}>
+          {this.props.book}
+        </Text>
+      )      
+    } else {
+      return null;
+    }
   }
 }
 
