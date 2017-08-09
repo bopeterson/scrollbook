@@ -2,9 +2,11 @@
 
 /*
 
-bra men för meckigt att ändra....
-book: {
-  plane: [
+bra men för meckigt att ändra....kanske
+ungefär så här...
+books=[
+  {title:'plane',
+    assets: [
     {
       image: require('./img/flyg000.png'),
       sound: 'tada.mp3'
@@ -29,11 +31,13 @@ book: {
       image: require('./img/flyg005.jpg'),
       sound: 'flyg5.mp3'
     },
+  
   ]
 }
+]
 */
 
-var _Assets = {
+const _Assets = {
   mainBookName: 'plane', //number of frames in this book defines the size of the indicators
   bookOrder: [
     'plane',
@@ -45,7 +49,11 @@ var _Assets = {
     train: 'Åka tåg',
     dentist: 'Gå till tandläkaren',
   },
-  //images could be constructed automatically if sound and image files were named <booktitle00X.png> 
+  titleImages: {
+    plane: require('./img/flyg000.png'),
+    train: require('./img/flyg001.jpg'),
+    dentist: require('./img/flyg002.jpg'),
+  },
   images: {
     plane: [
       require('./img/flyg000.png'),
@@ -106,11 +114,11 @@ var _Assets = {
 
   
   speakerIcon: require('./img/speaker256x256.png'),
-  backIcon: require('./img/backbutton256x256_3.png'),
+  backIcon: require('./img/home240x240yellow.png'),
 
 
 
 };
 
-var Assets = _Assets;
+const Assets = _Assets;
 module.exports = Assets;

@@ -1,5 +1,3 @@
-//ändra alla var till let eller const
-
 import {AppRegistry} from 'react-native';
 
 import React, { Component } from 'react';
@@ -12,7 +10,6 @@ import {
   ScrollView,
   Dimensions,
   TouchableOpacity,
-  Platform,
   Button, //not needed in the future
 } from 'react-native';
 
@@ -23,26 +20,13 @@ import {
   NavigationActions,
 } from 'react-navigation';
 
-var Environment = require('./environment.js');
-var Assets = require('./assets.js');
-
-
+const Environment = require('./environment.js');
+const Assets = require('./assets.js');
 
 // Enable playback in silence mode (iOS only)
 Sound.setCategory('Playback');
 
 prettylog('assets',Assets);
-
-//weird-the map version above works fine on ios but didn't seem to work on android.
-//hm, now it seems to work.....
-//let oldSounds=[];
-//for (let i=0;i<Assets.soundFiles.length;i++) {
-//  console.log('====================================');
-//  const oneSound=new Sound(Assets.soundFiles[i], Sound.MAIN_BUNDLE, (error)=>{if (error){console.log('failed to load',error);return;}console.log('duration '+oneSound.getDuration())});
-//  oldSounds.push(oneSound);
-//}
-
-const oldSounds = Assets.soundFiles['plane'].map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
 
 //constants for defining size of components
 const screenwidth = Dimensions.get('window').width;
@@ -57,10 +41,10 @@ const speakerwidth = indicatorwidth*0.8;
 
 
 //stylesheets
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {flex: 1, 
     flexDirection: 'row',
-    backgroundColor: 'darkred', //black
+    backgroundColor: 'black', //black
   },
   
   left: {
@@ -75,7 +59,14 @@ var styles = StyleSheet.create({
   },
   
   right: {
-    flex: 1
+    flex: 1,
+    justifyContent:'center',
+  },
+
+  leftVerticalPlaceholder: {
+    //backgroundColor:'darkred',
+    height:imheight,
+    width:10,
   },
 
   mainContent: {
@@ -143,8 +134,6 @@ export default class MainView extends React.Component {
     super(props);
 
     //pseudo-states
-    this.swipeOutside=false;
-    this.closestFrame=0;
     this.book=this.props.navigation.state.params.book;
     this.images=Assets.images[this.book];
     this.sounds = Assets.soundFiles[this.book].map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
@@ -154,13 +143,11 @@ export default class MainView extends React.Component {
       activeFrame: 0,
       scrollEnabled: true,
       speaking: false,
-      logtext: 'Entering '+this.props.navigation.state.params.book,
+      logtext: JSON.stringify(Environment),
       //load 2 images from start, or all images:
       framesToLoad: Environment.gradualLoad ? 2 : Assets.images[this.book].length, 
     };
-    this.handleImageViewScroll = this.handleImageViewScroll.bind(this);
-    this.handleImageViewMove = this.handleImageViewMove.bind(this);
-    
+    this.handleImageViewScroll = this.handleImageViewScroll.bind(this);    
     this.handlePageNumberPress = this.handlePageNumberPress.bind(this);
     this.handleBackButtonPress = this.handleBackButtonPress.bind(this);
   }
@@ -171,6 +158,7 @@ export default class MainView extends React.Component {
   componentWillUnmount() {
     clearTimeout(this.speakerTimerID);
     clearTimeout(this.scrollLockTimerID);
+    clearTimeout(this.loadTimerID);
     if (this.state.speaking) {
       this.sounds[this.state.activeFrame].stop();
     }
@@ -181,10 +169,11 @@ export default class MainView extends React.Component {
     if (prevState.activeFrame!==this.state.activeFrame) {
       if (Environment.gradualLoad) {
         //load one frame beyond current active frame. This state can only increase but not decrease. When scrolling backwards, all frames that have been shown remain loaded. 
-
-        //xxx this timeout must be cleard in unmount
-        setTimeout(()=>{this.setState((prevState,props) => ({framesToLoad:Math.max(this.state.activeFrame+2,prevState.framesToLoad)}))},100);
-        
+        this.loadTimerID=setTimeout(()=>{
+          this.setState(
+            (prevState,props) => ({framesToLoad:Math.max(this.state.activeFrame+2,prevState.framesToLoad)})
+          )
+        },100);
       }
       //always clear queued sounds that havent't started when moved to a new frame
       clearTimeout(this.speakerTimerID);
@@ -198,8 +187,6 @@ export default class MainView extends React.Component {
   forcedScrollParent(frame) {
     this._imageView.forcedScrollChild(frame);
   }
-  
-  
   
   delayedPlay(frame,delay) {
     this.speakerTimerID = setTimeout(()=>{
@@ -230,8 +217,9 @@ export default class MainView extends React.Component {
     const backAction = NavigationActions.back({
       //key: 'Profile'
     });    
+    //Back button can be pressed while speaking
+    //Consider disabling the back button while speaking 
     this.props.navigation.dispatch(backAction);
-    //xxx ev bara om den inte pratar 
   }
 
     
@@ -241,7 +229,6 @@ export default class MainView extends React.Component {
     const approachingFrame = Math.floor(x/imwidth+Environment.delta);
     const signedOffset = ((x+imwidth/2)%imwidth-imwidth/2)/imwidth;//simplify???
     const offset = Math.abs(signedOffset);
-    this.closestFrame = Math.floor((x+imwidth/2)/imwidth);
     
     if (offset < Environment.delta) {
       this.setState({
@@ -250,39 +237,9 @@ export default class MainView extends React.Component {
     }
   }
   
-  handleImageViewMove(e) {
-    //this hardcoded xxx must be calucaled from xxx.measure
-    if (!Environment.allowSwipeOutsideImage) {
-      if (e.pageX<184 && !this.swipeOutside) {
-        this.swipeOutside=true;
-        this.setState({scrollEnabled:false});
-        this.forcedScrollParent(this.closestFrame);
-        this.xxxTimerID = setTimeout(()=>{
-          this.setState({scrollEnabled:true});
-          this.swipeOutside=false;
-        },300);
-      } else if (e.pageX>=184){
-        this.swipeOutside=false;
-      }
-    }
-  }
-
-
-  
   onLayout(e) {
     const {width, height} = Dimensions.get('window');
     this.setState({orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'});
-    
-    this.refs.xxx.measure( (fx, fy, width, height, px, py) => {
-            const text=//'Component width is: ' + width +
-                       //'Component height is: ' + height +
-                       //'X offset to frame: ' + fx +
-                       //'Y offset to frame: ' + fy +
-                      ' x:' + px //+
-                       //'Y offset to page: ' + py;
-            this.setState({logtext:text})
-        });        
-    
   }
 
   render() {
@@ -290,15 +247,15 @@ export default class MainView extends React.Component {
     return (
      <View style={[styles.container]} onLayout={this.onLayout.bind(this)}>
         <View style={[styles.left]}>
-        <BackButton onBackButtonPress={this.handleBackButtonPress} orientation={this.state.orientation} renderIf={'LANDSCAPE'}/>
+          <View style={[styles.leftVerticalPlaceholder]}></View>
+          <BackButton onBackButtonPress={this.handleBackButtonPress} orientation={this.state.orientation} renderIf={'LANDSCAPE'}/>
         </View>
         <View style={[styles.middle]}>
           <View style={[styles.mainContent]}>
-            <View style={[styles.imageViewContainer]} ref='xxx'>
+            <View style={[styles.imageViewContainer]}>
               <ImageView onLayout={this._onLayout}
                 ref={instance => { this._imageView = instance; }}
                 onImageViewScroll={this.handleImageViewScroll}
-                onImageViewMove={this.handleImageViewMove}
                 scrollEnabled={this.state.scrollEnabled}
                 framesToLoad={this.state.framesToLoad}
                 images={this.images}
@@ -330,7 +287,6 @@ class ImageView extends React.Component {
   constructor(props) {
     super(props);
     this.handleScroll=this.handleScroll.bind(this);
-    this.handleMove=this.handleMove.bind(this);
   }
   
   componentDidMount() {
@@ -341,11 +297,7 @@ class ImageView extends React.Component {
     //prettylog("scroll event",e.nativeEvent);
     this.props.onImageViewScroll(e.nativeEvent);
   }
-  
-  handleMove(e) {
-    this.props.onImageViewMove(e.nativeEvent);
-  }
-    
+      
   forcedScrollChild(frame) {
     this._scrollView.scrollTo({x: frame*imwidth, y: 0, animated: Environment.animateForcedScroll})
   }
@@ -360,7 +312,6 @@ class ImageView extends React.Component {
         showsHorizontalScrollIndicator={false}
         scrollEnabled={this.props.scrollEnabled}
         onScroll={this.handleScroll}
-        onResponderMove={this.handleMove}
         scrollEventThrottle={Environment.scrollThrottle}
       >
       {this.props.images.slice(0,this.props.framesToLoad).map((src, i) => {
@@ -466,9 +417,11 @@ class Log extends React.Component {
     super(props);
   }
   render() {
-    return (
-      <Text style={{ color: 'white', fontFamily: 'Courier' }}>Log: {this.props.text}</Text>
-    )
+    if (Environment.showLog) {
+      return <Text style={{ color: 'white', fontFamily: 'Courier' }}>Log: {this.props.text}</Text>
+    } else {
+      return null;
+    }
   }
 }
 
@@ -476,27 +429,106 @@ class StartScreen extends React.Component {
   static navigationOptions = {
     title: 'Start',
   };
+  
+  constructor(props) {
+    super(props);
+    this.handleImagePress = this.handleImagePress.bind(this);
+    
+  }
+  
+  handleImagePress(book) {
+    const { navigate } = this.props.navigation;
+    navigate('Main',{ book: book })
+  }
+  
   render() {
     const { navigate } = this.props.navigation;
+    if (true) {
+      return (
+        <View style={{flex:1}}>
+          <View style={{flex:2, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
+            <ImageButton onImagePress={this.handleImagePress} color='steelblue' bookNo={0}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} color='powderblue' bookNo={1}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} color='steelblue' bookNo={2}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} color='powderblue' bookNo={0}></ImageButton>
+          </View>
+          <View style={{flex:1, justifyContent:'center',alignItems:'center'}}>
+            <TitleText source={Assets.titleImages.plane}></TitleText>
+          </View>
+          <View style={{flex:2, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
+            <ImageButton onImagePress={this.handleImagePress} color='steelblue' bookNo={0}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} color='powderblue' bookNo={1}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} color='steelblue' bookNo={2}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} color='powderblue' bookNo={0}></ImageButton>
+          </View>
+        </View>
+      )
+    } else {
+      return (
+        <View style={{flex:1, justifyContent: 'center',alignItems: 'center'}}>
+          <Text>Så gör man - Ljud- och bildböcker av Ann Gomér med illustrationer av ??? ???</Text>
+        <Button style={{backgroundColor:'darkred'}}
+            onPress={() => navigate('Main',{ book: Assets.bookOrder[0] })}
+            title={Assets.bookTitles[Assets.bookOrder[0]]}
+          />
+          <Button
+            style={{backgroundColor:'darkblue'}}
+            onPress={() => navigate('Main',{ book: Assets.bookOrder[1] })}
+            title={Assets.bookTitles[Assets.bookOrder[1]]}
+          />
+          <Button
+            style={{backgroundColor:'darkgreen'}}
+            onPress={() => navigate('Main',{ book: Assets.bookOrder[2] })}
+            title={Assets.bookTitles[Assets.bookOrder[2]]}
+          />
+        </View>
+      );
+    }
+  }
+}
+
+class TitleText extends React.Component {
+  render() {
+    return ( 
+      <Image style={{flex:1,backgroundColor:'skyblue'}} resizeMode = {'contain'} source={this.props.source}></Image>
+    )
+  }
+}
+
+class ImageButton extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handlePress=this.handlePress.bind(this);
+  }
+  
+  handlePress(e,book) {    
+    //let parent handle:     
+    this.props.onImagePress(book);
+  }
+  
+  render() {
+    this.book=Assets.bookOrder[this.props.bookNo];
+    this.src=Assets.titleImages[this.book];
     return (
-      <View style={{flex:1, justifyContent: 'center',alignItems: 'center'}}>
-        <Text>Så gör man - Ljud- och bildböcker av Ann Gomér med illustrationer av Xxx Xxxxx</Text>
-      <Button style={{backgroundColor:'darkred'}}
-          onPress={() => navigate('Main',{ book: Assets.bookOrder[0] })}
-          title={Assets.bookTitles[Assets.bookOrder[0]]}
-        />
-        <Button
-          style={{backgroundColor:'darkblue'}}
-          onPress={() => navigate('Main',{ book: Assets.bookOrder[1] })}
-          title={Assets.bookTitles[Assets.bookOrder[1]]}
-        />
-        <Button
-          style={{backgroundColor:'darkgreen'}}
-          onPress={() => navigate('Main',{ book: Assets.bookOrder[2] })}
-          title={Assets.bookTitles[Assets.bookOrder[2]]}
-        />
+      <TouchableOpacity style={{flex:1,margin:10,backgroundColor:this.props.color}}
+      
+      onPress={(e) => this.handlePress(e,this.book)} 
+      activeOpacity={0.6}
+    >
+      
+      <Image style={{maxHeight:'100%',maxWidth:'100%'}} resizeMode = {'contain'} source={this.src}></Image> 
+      </TouchableOpacity>
+    )
+  }
+}
+
+class OldImageButton extends React.Component {
+  render() {
+    return ( 
+      <View style={{flex:1, margin:10,backgroundColor:this.props.color}}>
+      <Image style={{maxHeight:'100%',maxWidth:'100%'}} resizeMode = {'contain'} source={Assets.backIcon}></Image> 
       </View>
-    );
+    )
   }
 }
 
