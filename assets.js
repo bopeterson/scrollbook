@@ -38,6 +38,7 @@ books=[
 */
 
 const _Assets = {
+  mainTitleImage: require('./img/maintitle.png'),
   mainBookName: 'plane', //number of frames in this book defines the size of the indicators
   bookOrder: [
     'plane',
