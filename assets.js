@@ -43,6 +43,11 @@ const _Assets = {
     'plane',
     'train',
     'dentist',
+    'plane',
+    'train',
+    'dentist',
+    'plane',
+    'train',
   ],
   bookTitles: {
     plane: 'Flyga',

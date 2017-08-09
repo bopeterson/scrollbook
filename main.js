@@ -253,7 +253,7 @@ export default class MainView extends React.Component {
         <View style={[styles.middle]}>
           <View style={[styles.mainContent]}>
             <View style={[styles.imageViewContainer]}>
-              <ImageView onLayout={this._onLayout}
+              <ImageView
                 ref={instance => { this._imageView = instance; }}
                 onImageViewScroll={this.handleImageViewScroll}
                 scrollEnabled={this.state.scrollEnabled}
@@ -432,9 +432,19 @@ class StartScreen extends React.Component {
   
   constructor(props) {
     super(props);
+    this.state = {
+      orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT',
+    }
+    super(props);
     this.handleImagePress = this.handleImagePress.bind(this);
     
   }
+  
+  onLayout(e) {
+    const {width, height} = Dimensions.get('window');
+    this.setState({orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'});
+  }
+  
   
   handleImagePress(book) {
     const { navigate } = this.props.navigation;
@@ -443,29 +453,29 @@ class StartScreen extends React.Component {
   
   render() {
     const { navigate } = this.props.navigation;
-    if (true) {
+    if (this.state.orientation=='LANDSCAPE') {
       return (
-        <View style={{flex:1}}>
+        <View style={{flex:1}} onLayout={this.onLayout.bind(this)}>
           <View style={{flex:2, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
             <ImageButton onImagePress={this.handleImagePress} color='steelblue' bookNo={0}></ImageButton>
             <ImageButton onImagePress={this.handleImagePress} color='powderblue' bookNo={1}></ImageButton>
             <ImageButton onImagePress={this.handleImagePress} color='steelblue' bookNo={2}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} color='powderblue' bookNo={0}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} color='powderblue' bookNo={3}></ImageButton>
           </View>
           <View style={{flex:1, justifyContent:'center',alignItems:'center'}}>
             <TitleText source={Assets.titleImages.plane}></TitleText>
           </View>
           <View style={{flex:2, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
-            <ImageButton onImagePress={this.handleImagePress} color='steelblue' bookNo={0}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} color='powderblue' bookNo={1}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} color='steelblue' bookNo={2}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} color='powderblue' bookNo={0}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} color='steelblue' bookNo={4}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} color='powderblue' bookNo={5}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} color='steelblue' bookNo={6}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} color='powderblue' bookNo={7}></ImageButton>
           </View>
         </View>
       )
     } else {
       return (
-        <View style={{flex:1, justifyContent: 'center',alignItems: 'center'}}>
+        <View style={{flex:1, justifyContent: 'center',alignItems: 'center'}} onLayout={this.onLayout.bind(this)}>
           <Text>Så gör man - Ljud- och bildböcker av Ann Gomér med illustrationer av ??? ???</Text>
         <Button style={{backgroundColor:'darkred'}}
             onPress={() => navigate('Main',{ book: Assets.bookOrder[0] })}
@@ -490,7 +500,12 @@ class StartScreen extends React.Component {
 class TitleText extends React.Component {
   render() {
     return ( 
-      <Image style={{flex:1,backgroundColor:'skyblue'}} resizeMode = {'contain'} source={this.props.source}></Image>
+      <Image 
+        style={{flex:1,backgroundColor:'skyblue'}} 
+        resizeMode = {'contain'} 
+        source={this.props.source}
+      >
+      </Image>
     )
   }
 }
@@ -510,24 +525,13 @@ class ImageButton extends React.Component {
     this.book=Assets.bookOrder[this.props.bookNo];
     this.src=Assets.titleImages[this.book];
     return (
-      <TouchableOpacity style={{flex:1,margin:10,backgroundColor:this.props.color}}
-      
-      onPress={(e) => this.handlePress(e,this.book)} 
-      activeOpacity={0.6}
-    >
-      
-      <Image style={{maxHeight:'100%',maxWidth:'100%'}} resizeMode = {'contain'} source={this.src}></Image> 
+      <TouchableOpacity 
+        style={{flex:1,margin:10,backgroundColor:this.props.color}}
+        onPress={(e) => this.handlePress(e,this.book)} 
+        activeOpacity={0.6}
+      >
+        <Image style={{maxHeight:'100%',maxWidth:'100%'}} resizeMode = {'contain'} source={this.src}></Image> 
       </TouchableOpacity>
-    )
-  }
-}
-
-class OldImageButton extends React.Component {
-  render() {
-    return ( 
-      <View style={{flex:1, margin:10,backgroundColor:this.props.color}}>
-      <Image style={{maxHeight:'100%',maxWidth:'100%'}} resizeMode = {'contain'} source={Assets.backIcon}></Image> 
-      </View>
     )
   }
 }
