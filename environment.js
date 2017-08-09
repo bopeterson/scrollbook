@@ -5,7 +5,7 @@ import {
 
 const _Environments = {
   ios: {
-    playDelay: 200, //milliseconds, 
+    playDelay: 100, //milliseconds, 
     delta: 0.25, //should not exeed 0.3
     deceleration: 'fast', 
     animateForcedScroll: true,
@@ -17,7 +17,7 @@ const _Environments = {
     showLog: false,
   },
   android: {
-    playDelay: 200, //milliseconds, 
+    playDelay: 100, //milliseconds, 
     delta: 0.25, //should not exeed 0.3
     deceleration: 'fast', 
     animateForcedScroll: true,

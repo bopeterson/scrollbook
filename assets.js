@@ -6,6 +6,7 @@ bra men för meckigt att ändra....kanske
 ungefär så här...
 books=[
   {title:'plane',
+  titleimage...
     assets: [
     {
       image: require('./img/flyg000.png'),
@@ -44,25 +45,35 @@ const _Assets = {
     'plane',
     'train',
     'dentist',
-    'plane',
-    'train',
-    'dentist',
-    'plane',
-    'train',
+    'funeral',
+    'restaurant',
+    'shop',
+    'swim',
+    'doctor',
   ],
-  bookTitles: {
-    plane: 'Flyga',
+  bookTitles: {    
+    funeral: 'Gå på begravning',
+    doctor: 'Gå till doktorn',
     train: 'Åka tåg',
     dentist: 'Gå till tandläkaren',
+    plane: 'Åka flygplan',
+    restaurant: 'Gå på restaurang',
+    shop: 'Handla i affären',
+    swim: 'På simhallen',
   },
   titleImages: {
-    plane: require('./img/flyg000.png'),
-    train: require('./img/flyg001.jpg'),
-    dentist: require('./img/flyg002.jpg'),
+    funeral: require('./img/titlefuneral.png'),
+    doctor: require('./img/titledoctor.png'),
+    train: require('./img/titletrain.png'),
+    dentist: require('./img/titledentist.png'),
+    plane: require('./img/titleplane.png'),
+    restaurant: require('./img/titlerestaurant.png'),
+    shop: require('./img/titleshop.png'),
+    swim: require('./img/titleswim.png'),
   },
   images: {
     plane: [
-      require('./img/flyg000.png'),
+      require('./img/titleplane.png'),
       require('./img/flyg001.jpg'),
       require('./img/flyg002.jpg'),
       require('./img/flyg003.jpg'),
@@ -70,19 +81,27 @@ const _Assets = {
       require('./img/flyg005.jpg'),
     ],
     train: [
-      require('./img/flyg001.jpg'),
-      require('./img/flyg001.jpg'),
-      require('./img/flyg001.jpg'),
-      require('./img/flyg001.jpg'),
-      require('./img/flyg001.jpg'),
-      require('./img/flyg001.jpg'),
-      require('./img/flyg001.jpg'),
+      require('./img/titletrain.png'),
     ],
     dentist: [
-      require('./img/flyg003.jpg'),
-      require('./img/flyg004.jpg'),
-      require('./img/flyg005.jpg'),
+      require('./img/titledentist.png'),
     ],
+    funeral: [
+      require('./img/titlefuneral.png'),
+    ],
+    restaurant: [
+      require('./img/titlerestaurant.png'),
+    ],
+    shop: [
+      require('./img/titleshop.png'),
+    ],
+    swim: [
+      require('./img/titleswim.png'),
+    ],
+    doctor: [
+      require('./img/titledoctor.png'),
+    ],
+
   },
   soundFiles: {
     plane:   [
@@ -108,17 +127,7 @@ const _Assets = {
       'flyg3.mp3',
     ],
   },
-  
-  xxxSoundFiles: [
-      'tada.mp3', //only used while testing
-      'flyg1.mp3',
-      'flyg2.mp3',
-      'flyg3.mp3',
-      'flyg4.mp3',
-      'flyg5.mp3',
-    ],
 
-  
   speakerIcon: require('./img/speaker256x256.png'),
   backIcon: require('./img/home240x240yellow.png'),
 

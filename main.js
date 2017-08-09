@@ -455,45 +455,47 @@ class StartScreen extends React.Component {
     const { navigate } = this.props.navigation;
     if (this.state.orientation=='LANDSCAPE') {
       return (
-        <View style={{flex:1, marginTop:0, backgroundColor:'black'}} onLayout={this.onLayout.bind(this)}>
-          <View style={{flex:2, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
-            <ImageButton onImagePress={this.handleImagePress} color='black' bookNo={0}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} color='black' bookNo={1}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} color='black' bookNo={2}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} color='black' bookNo={3}></ImageButton>
+        <View style={{flex:1, marginTop:0, backgroundColor:'red'}} onLayout={this.onLayout.bind(this)}>
+          <View style={{flex:2, flexDirection: 'row', justifyContent:'center',alignItems:'center', backgroundColor:'darkblue'}}>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={0}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={1}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={2}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={3}></ImageButton>
           </View>
-          <View style={{flex:1, justifyContent:'center',alignItems:'center'}}>
+          <View style={{flex:1, justifyContent:'center',alignItems:'center',backgroundColor:'green'}}>
             <TitleText source={Assets.mainTitleImage}></TitleText>
           </View>
-          <View style={{flex:2, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
-            <ImageButton onImagePress={this.handleImagePress} color='black' bookNo={4}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} color='black' bookNo={5}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} color='black' bookNo={6}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} color='black' bookNo={7}></ImageButton>
+          <View style={{flex:2, flexDirection: 'row', justifyContent:'center',alignItems:'center', backgroundColor:'darkblue'}}>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={4}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={5}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={6}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={7}></ImageButton>
           </View>
         </View>
       )
-    } else {
+    } else { //PORTRAIT
       return (
-        <View style={{flex:1,marginTop:20, backgroundColor:'black'}} onLayout={this.onLayout.bind(this)}>
-          <View style={{flex:1, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
-            <ImageButton onImagePress={this.handleImagePress} color='black' bookNo={0}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} color='black' bookNo={1}></ImageButton>
-          </View>
-          <View style={{flex:1, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
-            <ImageButton onImagePress={this.handleImagePress} color='black' bookNo={2}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} color='black' bookNo={3}></ImageButton>
-          </View>
-          <View style={{flex:1, justifyContent:'center',alignItems:'center'}}>
-            <TitleText source={Assets.mainTitleImage}></TitleText>
-          </View>
-          <View style={{flex:1, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
-            <ImageButton onImagePress={this.handleImagePress} color='black' bookNo={4}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} color='black' bookNo={5}></ImageButton>
-          </View>
-          <View style={{flex:1, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
-            <ImageButton onImagePress={this.handleImagePress} color='black' bookNo={6}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} color='black' bookNo={7}></ImageButton>
+        <View style={{flex:1,backgroundColor:'black'}}>
+          <View style={{flex:1,marginTop:20, backgroundColor:'black'}} onLayout={this.onLayout.bind(this)}>
+            <View style={{flex:1, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={0}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={1}></ImageButton>
+            </View>
+            <View style={{flex:1, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={2}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={3}></ImageButton>
+            </View>
+            <View style={{flex:1, justifyContent:'center',alignItems:'center'}}>
+              <TitleText source={Assets.mainTitleImage}></TitleText>
+            </View>
+            <View style={{flex:1, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={4}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={5}></ImageButton>
+            </View>
+            <View style={{flex:1, flexDirection: 'row', justifyContent:'center',alignItems:'center'}}>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={6}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={7}></ImageButton>
+            </View>
           </View>
         </View>
       );
@@ -505,7 +507,7 @@ class TitleText extends React.Component {
   render() {
     return ( 
       <Image 
-        style={{flex:1,backgroundColor:'black',maxWidth:'100%'}} 
+        style={{flex:1,backgroundColor:'steelblue',maxWidth:'100%'}} 
         resizeMode = {'contain'} 
         source={this.props.source}
       >
@@ -526,15 +528,17 @@ class ImageButton extends React.Component {
   }
   
   render() {
-    this.book=Assets.bookOrder[this.props.bookNo];
+    this.book=Assets.bookOrder[this.props.bookNo]; //why doesn't just book whithout this work when sent to handlePress?
     this.src=Assets.titleImages[this.book];
     return (
       <TouchableOpacity 
-        style={{flex:1,margin:10,backgroundColor:this.props.color}}
+        style={{flex:1,margin:10,backgroundColor:'green'}}
         onPress={(e) => this.handlePress(e,this.book)} 
         activeOpacity={0.6}
       >
-        <Image style={{maxHeight:'100%',maxWidth:'100%'}} resizeMode = {'contain'} source={this.src}></Image> 
+        <Image style={{justifyContent:'flex-end',maxHeight:'100%',maxWidth:'100%',backgroundColor:'yellow'}} resizeMode = {'contain'} source={this.src}>
+        <Text style={{fontWeight:'bold',margin:8, textAlign:'center',backgroundColor: 'rgba(255,255,255,0.5)',color: 'black'}}>{Assets.bookTitles[this.book]}</Text>
+        </Image> 
       </TouchableOpacity>
     )
   }
