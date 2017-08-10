@@ -17,6 +17,9 @@ const _Environments = {
     gradualLoad: true,
     showLog: false,
     showBookTitle: true,
+    buttonColor: '#fecd0b', //red '#FF5959', yellow '#f4c053', 
+    textColor: '#fecd0b', //red '#FF5959', yellow '#f4c053',bonasignum: '#fecd0b'
+
   },
   android: {
     playDelay1: 100, //milliseconds, 
@@ -31,6 +34,8 @@ const _Environments = {
     gradualLoad: true,
     showLog: false,
     showBookTitle: true,
+    buttonColor: '#fecd0b', //red '#FF5959', yellow '#f4c053'
+    textColor: '#fecd0b', //red '#FF5959', yellow '#f4c053'
   }
   
 };

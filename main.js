@@ -10,7 +10,6 @@ import {
   ScrollView,
   Dimensions,
   TouchableOpacity,
-  Button, //not needed in the future
 } from 'react-native';
 
 import Sound from 'react-native-sound';
@@ -32,9 +31,25 @@ prettylog('assets',Assets);
 //const screenwidth = Dimensions.get('window').width; 
 //const screenheight = Dimensions.get('window').height;
 const {width:screenwidth, height:screenheight}=Dimensions.get('window');
+const maxdim=Math.max(screenheight,screenwidth); //width if landscape, height if portrait
+const mindim=Math.min(screenheight,screenwidth); //width if protrait, height if landscape
 
-const imwidth = Math.min(screenwidth,screenheight)*Environment.imagereduction;
+const imwidth = mindim*Environment.imagereduction;
 const imheight = imwidth / (Environment.aspectRatio*Environment.imageSideSpace);
+
+
+
+
+const iconwidthPortraitTemp=mindim/2 * 0.7;
+const iconheightPortraitTemp=(maxdim-24)*2/9 * 0.7; //2/9 because imageblock is 2 units high, and title block is 1 unit, and total height is 2+2+1+2+2=9 units, -24 because of status bar
+const iconwidthPortrait=Math.min(iconwidthPortraitTemp,iconheightPortraitTemp);
+console.log(iconwidthPortraitTemp,iconheightPortraitTemp,iconwidthPortrait);
+
+const iconwidthLandscapeTemp=maxdim/4 * 0.7;
+const iconheightLandscapeTemp=mindim*3/7 * 0.7; //3/7 because imageblock is 3 units high, and title block is 1 unit, and total height is 3+1+3=7 units
+const iconwidthLandscape=Math.min(iconwidthLandscapeTemp,iconheightLandscapeTemp);
+console.log(iconwidthLandscapeTemp,iconheightLandscapeTemp,iconwidthLandscape);
+
 
 const indicatorwidth = imwidth/Assets.images[Assets.mainBookName].length/1.5; 
 const indicatorradius = indicatorwidth/2;
@@ -44,8 +59,8 @@ const speakerwidth = indicatorwidth*0.8;
 //Guideline sizes are based on standard ~5" screen mobile device
 const guidelineBaseWidth = 350;
 const guidelineBaseHeight = 680;
-const scale = size => Math.min(screenwidth,screenheight) / guidelineBaseWidth * size;
-const verticalScale = size => Math.max(screenheight,screenwidth) / guidelineBaseHeight * size;
+const scale = size => mindim / guidelineBaseWidth * size;
+const verticalScale = size => maxdim / guidelineBaseHeight * size;
 const moderateScale = (size, factor = 0.5) => size + ( scale(size) - size ) * factor;
 /*
 moderate scale on various devices with factor=0.5 and 0.8
@@ -76,7 +91,7 @@ const styles = StyleSheet.create({
   },
   
   middle: {
-    width: imwidth, //xxx reduntant??? see *
+    width: imwidth,
   },
   
   right: {
@@ -94,12 +109,11 @@ const styles = StyleSheet.create({
     flex: 1, 
     justifyContent: 'center', 
     flexDirection: 'column',
-    alignItems: 'center', //or flex-start xxx 
+    alignItems: 'center', //or flex-start to put home button to the left in stead of center. Center looks better 
   },
 
   imageViewContainer: {
-    width: imwidth, //* in middle instead???
-    height: imheight, //not needed?
+    height: imheight, 
     backgroundColor: '#222222'
   },
 
@@ -113,7 +127,7 @@ const styles = StyleSheet.create({
     height: indicatorwidth,
     borderRadius: indicatorradius,
     margin: indicatormargin, 
-    backgroundColor: '#f4c053', //'#FF5959', 
+    backgroundColor: Environment.buttonColor, 
     justifyContent: 'center', 
     alignItems: 'center'
   },
@@ -148,14 +162,14 @@ const styles = StyleSheet.create({
     flex:1, 
     justifyContent:'center',
     alignItems:'center',
-    backgroundColor:'black',//'green',
+    backgroundColor:Environment.textColor,//'green',
   },
 
   portraitStartMainTitle: {
     flex:1, 
     justifyContent:'center',
     alignItems:'center',
-    backgroundColor:'black',//'green',
+    backgroundColor:Environment.textColor,//'green',
   },
 
   landscapeStartImageBlock: {
@@ -163,7 +177,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     justifyContent:'center',
     alignItems:'center', 
-    backgroundColor:'black',//'darkblue',
+    //backgroundColor:'orange',//'darkblue',
   },
 
   portraitStartImageBlock: {
@@ -174,36 +188,37 @@ const styles = StyleSheet.create({
   },
 
   portraitStartSubContainer: {//adjust for status bar on top of portrait
-    flex:1,marginTop:20, 
+    flex:1,marginTop:24, 
     backgroundColor:'black',//'black',
   },  
 
   titleText: {
     flex:1,
     //maxWidth:'100%',
-    backgroundColor:'black',//'steelblue'
+    //backgroundColor:'steelblue',//'steelblue'
   },
 
   imageButtonTouchable: {
     flex:1,
-    margin:8,
-    backgroundColor:'black',//'green',
+    alignItems:'center',
+    margin:1,
+    //backgroundColor:'darkgreen',//'green',
   },
 
   imageButtonImage: {
-    flex:1,
-    height:undefined,
-    width:undefined,
-    backgroundColor:'black',//'yellow',
+    //height:iconwidth, sent as prop
+    //width:iconwidth, sent as prop
+    margin:3,
+    //backgroundColor:'darkred',//'yellow',
   },
 
   bookTitle: {
-    fontWeight:'bold',
-    fontSize: moderateScale(14,0.7),
-    margin:4, 
+    //fontWeight:'bold',
+    fontSize: moderateScale(12,0.5),
+    margin:1, 
     textAlign:'center',
-    backgroundColor:'black',
-    color: '#f4c053',
+    //backgroundColor:'darkblue', //'black';
+    color: Environment.textColor,
   }
 
 });
@@ -550,19 +565,19 @@ class StartScreen extends React.Component {
       return (
         <View style={[styles.landscapeStartContainer]} onLayout={this.onLayout.bind(this)}>
           <View style={[styles.landscapeStartImageBlock]}>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={0}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={1}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={2}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={3}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={0} width={iconwidthLandscape}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={1} width={iconwidthLandscape}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={2} width={iconwidthLandscape}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={iconwidthLandscape}></ImageButton>
           </View>
           <View style={[styles.landscapeStartMainTitle]}>
             <TitleText source={Assets.mainTitleImage}></TitleText>
           </View>
           <View style={[styles.landscapeStartImageBlock]}>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={4}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={5}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={6}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={7}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={iconwidthLandscape}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={5} width={iconwidthLandscape}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={6} width={iconwidthLandscape}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={7} width={iconwidthLandscape}></ImageButton>
           </View>
         </View>
       )
@@ -571,23 +586,23 @@ class StartScreen extends React.Component {
         <View style={[styles.portraitStartContainer]} onLayout={this.onLayout.bind(this)}>
           <View style={[styles.portraitStartSubContainer]}>
             <View style={[styles.portraitStartImageBlock]}>
-              <ImageButton onImagePress={this.handleImagePress} bookNo={0}></ImageButton>
-              <ImageButton onImagePress={this.handleImagePress} bookNo={1}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={0} width={iconwidthPortrait}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={1} width={iconwidthPortrait}></ImageButton>
             </View>
             <View style={[styles.portraitStartImageBlock]}>
-              <ImageButton onImagePress={this.handleImagePress} bookNo={2}></ImageButton>
-              <ImageButton onImagePress={this.handleImagePress} bookNo={3}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={2} width={iconwidthPortrait}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={iconwidthPortrait}></ImageButton>
             </View>
             <View style={[styles.portraitStartMainTitle]}>
               <TitleText source={Assets.mainTitleImage}></TitleText>
             </View>
             <View style={[styles.portraitStartImageBlock]}>
-              <ImageButton onImagePress={this.handleImagePress} bookNo={4}></ImageButton>
-              <ImageButton onImagePress={this.handleImagePress} bookNo={5}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={iconwidthPortrait}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={5} width={iconwidthPortrait}></ImageButton>
             </View>
             <View style={[styles.portraitStartImageBlock]}>
-              <ImageButton onImagePress={this.handleImagePress} bookNo={6}></ImageButton>
-              <ImageButton onImagePress={this.handleImagePress} bookNo={7}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={6} width={iconwidthPortrait}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={7} width={iconwidthPortrait}></ImageButton>
             </View>
           </View>
         </View>
@@ -673,7 +688,7 @@ class ImageButton extends React.Component {
         onPress={(e) => this.handlePress(e,this.book)} 
         activeOpacity={0.6}
       >
-        <Image style={[styles.imageButtonImage]} resizeMode = {'contain'} source={this.src}>
+        <Image style={[styles.imageButtonImage,{width:this.props.width,height:this.props.width}]} resizeMode = {'contain'} source={this.src}>
         
         </Image>
         <BookTitle book={Assets.bookTitles[this.book]}>

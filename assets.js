@@ -57,7 +57,7 @@ const _Assets = {
     train: 'Åka tåg',
     dentist: 'Gå till tandläkaren',
     plane: 'Åka flygplan',
-    restaurant: 'Gå på restaurang',
+    restaurant: 'Gå       på       restaurang',
     shop: 'Handla i affären',
     swim: 'På simhallen',
   },
