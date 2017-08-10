@@ -179,7 +179,8 @@ const styles = StyleSheet.create({
   },  
 
   titleText: {
-    flex:1,maxWidth:'100%',
+    flex:1,
+    //maxWidth:'100%',
     backgroundColor:'black',//'steelblue'
   },
 
@@ -596,7 +597,7 @@ class StartScreen extends React.Component {
 }
 
 
-class TitleText extends React.Component {
+class TitleTextTest extends React.Component {
   render() {
     return ( 
       <Text 
@@ -610,7 +611,6 @@ class TitleText extends React.Component {
   }
 }
 
-
 class OldTitleText extends React.Component {
   render() {
     return ( 
@@ -620,6 +620,35 @@ class OldTitleText extends React.Component {
         source={this.props.source}
       >
       </Image>
+    )
+  }
+}
+
+
+class TitleText extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handlePress=this.handlePress.bind(this);
+  }
+
+  handlePress(e) {    
+    //let parent handle:     
+    this.props.onTitlePress();
+  }
+
+  render() {
+    return (
+      <TouchableOpacity 
+        onPress={(e) => this.handlePress(e)} 
+        activeOpacity={0.6}
+      >
+        <Image 
+          style={[styles.titleText]} 
+          resizeMode = {'contain'} 
+          source={this.props.source}
+          >
+        </Image>
+      </TouchableOpacity>
     )
   }
 }

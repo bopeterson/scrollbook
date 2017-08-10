@@ -16,7 +16,7 @@ const _Environments = {
     scrollThrottle: 16, //1 is tested, 16 is almost tested xxx
     gradualLoad: true,
     showLog: false,
-    showBookTitle: false,
+    showBookTitle: true,
   },
   android: {
     playDelay1: 100, //milliseconds, 
@@ -30,7 +30,7 @@ const _Environments = {
     scrollThrottle: 16, //1 is tested, 16 is almost tested xxx
     gradualLoad: true,
     showLog: false,
-    showBookTitle: false,
+    showBookTitle: true,
   }
   
 };
