@@ -10,6 +10,7 @@ import {
   ScrollView,
   Dimensions,
   TouchableOpacity,
+  Linking,
 } from 'react-native';
 
 import Sound from 'react-native-sound';
@@ -37,19 +38,13 @@ const mindim=Math.min(screenheight,screenwidth); //width if protrait, height if 
 const imwidth = mindim*Environment.imagereduction;
 const imheight = imwidth / (Environment.aspectRatio*Environment.imageSideSpace);
 
-
-
-
-const iconwidthPortraitTemp=mindim/2 * 0.7;
-const iconheightPortraitTemp=(maxdim-24)*2/9 * 0.7; //2/9 because imageblock is 2 units high, and title block is 1 unit, and total height is 2+2+1+2+2=9 units, -24 because of status bar
+const iconwidthPortraitTemp=mindim/2 * 0.6;
+const iconheightPortraitTemp=(maxdim-24)*2/9 * 0.6; //2/9 because imageblock is 2 units high, and title block is 1 unit, and total height is 2+2+1+2+2=9 units, -24 because of status bar, 0.6 to make room for text
 const iconwidthPortrait=Math.min(iconwidthPortraitTemp,iconheightPortraitTemp);
-console.log(iconwidthPortraitTemp,iconheightPortraitTemp,iconwidthPortrait);
 
-const iconwidthLandscapeTemp=maxdim/4 * 0.7;
-const iconheightLandscapeTemp=mindim*3/7 * 0.7; //3/7 because imageblock is 3 units high, and title block is 1 unit, and total height is 3+1+3=7 units
+const iconwidthLandscapeTemp=maxdim/4 * 0.6;
+const iconheightLandscapeTemp=mindim*3/7 * 0.6; //3/7 because imageblock is 3 units high, and title block is 1 unit, and total height is 3+1+3=7 units
 const iconwidthLandscape=Math.min(iconwidthLandscapeTemp,iconheightLandscapeTemp);
-console.log(iconwidthLandscapeTemp,iconheightLandscapeTemp,iconwidthLandscape);
-
 
 const indicatorwidth = imwidth/Assets.images[Assets.mainBookName].length/1.5; 
 const indicatorradius = indicatorwidth/2;
@@ -145,6 +140,7 @@ const styles = StyleSheet.create({
     width: indicatorwidth, 
     height: indicatorwidth,
     margin: indicatormargin, 
+    backgroundColor: Environment.buttonColor,
   },
 
   landscapeStartContainer: {
@@ -199,26 +195,27 @@ const styles = StyleSheet.create({
   },
 
   imageButtonTouchable: {
-    flex:1,
+    flex:2,
     alignItems:'center',
-    margin:1,
+    margin:2,
     //backgroundColor:'darkgreen',//'green',
   },
 
   imageButtonImage: {
     //height:iconwidth, sent as prop
     //width:iconwidth, sent as prop
-    margin:3,
+    margin:0,
     //backgroundColor:'darkred',//'yellow',
   },
 
   bookTitle: {
     //fontWeight:'bold',
-    fontSize: moderateScale(12,0.5),
-    margin:1, 
+    fontSize: moderateScale(16,0.3),
+    margin:0, 
     textAlign:'center',
     //backgroundColor:'darkblue', //'black';
     color: Environment.textColor,
+    height:iconwidthLandscape*0.4,
   }
 
 });
@@ -243,7 +240,21 @@ export default class MainView extends React.Component {
     //pseudo-states
     this.book=this.props.navigation.state.params.book;
     this.images=Assets.images[this.book];
-    this.sounds = Assets.soundFiles[this.book].map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
+    
+    //this map sometimes fail on Android. Timing problem???. Use loop instead
+    //this.sounds = Assets.soundFiles[this.book].map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
+
+    this.sounds = [];
+    for (let i=0;i<Assets.soundFiles[this.book].length;i++) {
+      var oneSound=new Sound(Assets.soundFiles[this.book][i], Sound.MAIN_BUNDLE, (error)=>{
+        if (error) {
+          this.setState({logtext:'failed to load sound '+error});
+          return;
+        }
+        this.setState({logtext:'loaded'+oneSound.getDuration()})
+      });
+      this.sounds.push(oneSound);
+    }
 
     this.state = {
       orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT',
@@ -298,6 +309,7 @@ export default class MainView extends React.Component {
   }
 
   delayedPlay(frame,delay1,delay2) {
+    this.setState({logtext:'will try to play'});
     this.speakerTimerID = setTimeout(()=>{
       console.log('delayedPlay');
       clearTimeout(this.scrollLockTimerID);
@@ -308,8 +320,11 @@ export default class MainView extends React.Component {
           if (success) {
             this.setState({scrollEnabled:true,speaking:false});
             //console.log('successfully finished playing '+ (frame));
+            this.setState({logtext:'finished playing'});
           } else {
             this.setState({scrollEnabled:true,speaking:false});
+            this.setState({logtext:'playing failed '+success});
+
             //console.log('playback of '+(frame)+'failed');
           }
         });
@@ -498,16 +513,18 @@ class ProgressView extends React.Component {
           {this.props.images.map((_, i) => {
             //would be good to make this content into a component
             let opacity=0.3;
+            let activeOpacity=1;
             let showSpeakerCurrent=false;
             if (i===this.props.frame) {
               opacity=1.0;
+              activeOpacity=0.6;
               showSpeakerCurrent=this.props.showSpeaker;
             }
             return (
               <TouchableOpacity 
                 key={i} 
                 onPress={(e) => this.handlePress(e, i)} 
-                activeOpacity={0.6}
+                activeOpacity={activeOpacity}
               >
                 <View style={[styles.indicator,{opacity: opacity}]}>
                   <SpeakerImage showSpeaker={showSpeakerCurrent} />
@@ -546,6 +563,7 @@ class StartScreen extends React.Component {
     }
     super(props);
     this.handleImagePress = this.handleImagePress.bind(this);
+    this.handleTitlePress = this.handleTitlePress.bind(this);
     
   }
   
@@ -559,6 +577,16 @@ class StartScreen extends React.Component {
     navigate('Main',{ book: book })
   }
 
+  handleTitlePress() {
+    //const { navigate } = this.props.navigation;
+    //navigate('Credits');
+    throw 'Controlled testing error'; //force app to error state
+    url="http://asynkronix.se";
+    Linking.openURL(url).catch(err => console.error('An error occurred', err));
+    
+  }
+
+
   render() {
     const { navigate } = this.props.navigation;
     if (this.state.orientation=='LANDSCAPE') {
@@ -571,7 +599,7 @@ class StartScreen extends React.Component {
             <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={iconwidthLandscape}></ImageButton>
           </View>
           <View style={[styles.landscapeStartMainTitle]}>
-            <TitleText source={Assets.mainTitleImage}></TitleText>
+            <TitleText onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage}></TitleText>
           </View>
           <View style={[styles.landscapeStartImageBlock]}>
             <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={iconwidthLandscape}></ImageButton>
@@ -594,7 +622,7 @@ class StartScreen extends React.Component {
               <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={iconwidthPortrait}></ImageButton>
             </View>
             <View style={[styles.portraitStartMainTitle]}>
-              <TitleText source={Assets.mainTitleImage}></TitleText>
+              <TitleText onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage}></TitleText>
             </View>
             <View style={[styles.portraitStartImageBlock]}>
               <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={iconwidthPortrait}></ImageButton>
@@ -649,6 +677,7 @@ class TitleText extends React.Component {
   handlePress(e) {    
     //let parent handle:     
     this.props.onTitlePress();
+    
   }
 
   render() {

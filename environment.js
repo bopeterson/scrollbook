@@ -2,7 +2,6 @@ import {
     Platform,
 } from 'react-native';
 
-
 const _Environments = {
   ios: {
     playDelay1: 100, //milliseconds until when scroll is locked and speaker icon shown 
