@@ -1,7 +1,6 @@
-import {AppRegistry} from 'react-native';
-
 import React, { Component } from 'react';
 import {
+  AppRegistry,
   StyleSheet,
   Text,
   View,
@@ -11,6 +10,8 @@ import {
   Dimensions,
   TouchableOpacity,
   Linking,
+  StatusBar,
+  Platform,
 } from 'react-native';
 
 import Sound from 'react-native-sound';
@@ -580,14 +581,20 @@ class StartScreen extends React.Component {
   handleTitlePress() {
     //const { navigate } = this.props.navigation;
     //navigate('Credits');
+
+
     throw 'Controlled testing error'; //force app to error state
-    url="http://asynkronix.se";
-    Linking.openURL(url).catch(err => console.error('An error occurred', err));
+    // url="http://asynkronix.se";
+    // Linking.openURL(url).catch(err => console.error('An error occurred', err));
     
   }
 
 
   render() {
+    if (Platform.OS==='android') {
+      StatusBar.setBackgroundColor('black');
+      StatusBar.setBarStyle('light-content');
+    }
     const { navigate } = this.props.navigation;
     if (this.state.orientation=='LANDSCAPE') {
       return (
