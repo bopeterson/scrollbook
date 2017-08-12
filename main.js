@@ -29,29 +29,6 @@ Sound.setCategory('Playback');
 
 prettylog('assets',Assets);
 
-//constants for defining size of components
-//const screenwidth = Dimensions.get('window').width; 
-//const screenheight = Dimensions.get('window').height;
-const {width:screenwidth, height:screenheight}=Dimensions.get('window');
-const maxdim=Math.max(screenheight,screenwidth); //width if landscape, height if portrait
-const mindim=Math.min(screenheight,screenwidth); //width if protrait, height if landscape
-
-const imwidth = mindim*Environment.imagereduction;
-const imheight = imwidth / (Environment.aspectRatio*Environment.imageSideSpace);
-
-const iconwidthPortraitTemp=mindim/2 * 0.6;
-const iconheightPortraitTemp=(maxdim-24)*2/9 * 0.6; //2/9 because imageblock is 2 units high, and title block is 1 unit, and total height is 2+2+1+2+2=9 units, -24 because of status bar, 0.6 to make room for text
-const iconwidthPortrait=Math.min(iconwidthPortraitTemp,iconheightPortraitTemp);
-
-const iconwidthLandscapeTemp=maxdim/4 * 0.6;
-const iconheightLandscapeTemp=mindim*3/7 * 0.6; //3/7 because imageblock is 3 units high, and title block is 1 unit, and total height is 3+1+3=7 units
-const iconwidthLandscape=Math.min(iconwidthLandscapeTemp,iconheightLandscapeTemp);
-
-const indicatorwidth = imwidth/Assets.images[Assets.mainBookName].length/1.5; 
-const indicatorradius = indicatorwidth/2;
-const indicatormargin = (imwidth/Assets.images[Assets.mainBookName].length-indicatorwidth)/2;
-const speakerwidth = indicatorwidth*0.8;
-
 //Guideline sizes are based on standard ~5" screen mobile device
 const guidelineBaseWidth = 350;
 const guidelineBaseHeight = 680;
@@ -59,35 +36,41 @@ const scale = size => mindim / guidelineBaseWidth * size;
 const verticalScale = size => maxdim / guidelineBaseHeight * size;
 const moderateScale = (size, factor = 0.5) => size + ( scale(size) - size ) * factor;
 
+//general screen size constants
+const {width:screenwidth, height:screenheight}=Dimensions.get('window');
+const maxdim=Math.max(screenheight,screenwidth); //width if landscape, height if portrait
+const mindim=Math.min(screenheight,screenwidth); //width if protrait, height if landscape
 
+//size contstants for book 
+const imwidth = mindim*Environment.imagereduction;
+const imheight = imwidth / (Environment.aspectRatio*Environment.imageSideSpace);
+const indicatorwidth = imwidth/Assets.images[Assets.mainBookName].length/1.5; 
+const indicatorradius = indicatorwidth/2;
+const indicatormargin = (imwidth/Assets.images[Assets.mainBookName].length-indicatorwidth)/2;
+const speakerwidth = indicatorwidth*0.8;
 
-console.log('screenwidth',screenwidth);
-console.log('screenheight',screenheight);
-console.log('iconwidthPortraitTemp',iconwidthPortraitTemp);
-console.log('iconheightPortraitTemp',iconheightPortraitTemp);
-console.log('iconwidthPortrait',iconwidthPortrait);
-console.log('iconwidthLandscapeTemp',iconwidthLandscapeTemp);
-console.log('iconheightLandscapeTemp',iconheightLandscapeTemp);
-console.log('iconwidthLandscape',iconwidthLandscape);
-console.log('moderateScale(16,0.3)',moderateScale(16,0.3));
-
-
-
-
-
-/*
-moderate scale on various devices with factor=0.5 and 0.8
-iphone 5s: 95, 93
-iphonw 6s: 103, 105
-iphone 7: 103, 105
-iphone 7+: 109, 114
-ipad pro 9.7": 159, 195
-ipad pro 10.5": 169, 210
-ipad pro 12.9": 196, 254
-*/
-
-
-
+//size constants for start screen
+const imageBlockTextSize = moderateScale(16,0.3);
+const imageBlockTextMaxRows = 2;
+const imageBlockTextHeight = imageBlockTextSize * imageBlockTextMaxRows * 1.3; //1.1875 minimum factor on ios
+//Landscape
+const imageBlockFlexLandscape = 3; //could be in environment
+const imageBlockTitleFlexLandscape = 1; //could be in environment
+const imageBlockHeightLandscape = mindim * imageBlockFlexLandscape /(2*imageBlockFlexLandscape+imageBlockTitleFlexLandscape);
+const imageButtonMaxHeightLandscape = imageBlockHeightLandscape * 0.9; //image and text
+let imageButtonImageMaxWidthLandscape = maxdim/4 * 0.9;
+let imageButtonImageMaxHeightLandscape = imageButtonMaxHeightLandscape - imageBlockTextHeight;
+imageButtonImageMaxHeightLandscape=Math.min(imageButtonImageMaxHeightLandscape,imageButtonImageMaxWidthLandscape);
+imageButtonImageMaxWidthLandscape=imageButtonImageMaxHeightLandscape;
+//Portrait
+const imageBlockFlexPortrait = 2; //could be in environment
+const imageBlockTitleFlexPortrait = 1; //could be in environment
+const imageBlockHeightPortrait = maxdim * imageBlockFlexPortrait /(4*imageBlockFlexPortrait+imageBlockTitleFlexPortrait);
+const imageButtonMaxHeightPortrait = imageBlockHeightPortrait * 0.9; //image and text
+let imageButtonImageMaxWidthPortrait = maxdim/2 * 0.9;
+let imageButtonImageMaxHeightPortrait = imageButtonMaxHeightPortrait - imageBlockTextHeight;
+imageButtonImageMaxHeightPortrait=Math.min(imageButtonImageMaxHeightPortrait,imageButtonImageMaxWidthPortrait);
+imageButtonImageMaxWidthPortrait=imageButtonImageMaxHeightPortrait;
 
 //stylesheets
 const styles = StyleSheet.create({
@@ -122,7 +105,7 @@ const styles = StyleSheet.create({
     flex: 1, 
     justifyContent: 'center', 
     flexDirection: 'column',
-    alignItems: 'center', //or flex-start to put home button to the left in stead of center. Center looks better 
+    alignItems: 'center',
   },
 
   imageViewContainer: {
@@ -164,7 +147,7 @@ const styles = StyleSheet.create({
   landscapeStartContainer: {
     flex:1, 
     marginTop:0, 
-    backgroundColor:'red',//'red'
+    backgroundColor:'black',//'red'
   },
 
   portraitStartContainer: {
@@ -173,21 +156,21 @@ const styles = StyleSheet.create({
   },
 
   landscapeStartMainTitle: {
-    flex:1, 
+    flex:imageBlockTitleFlexLandscape, 
     justifyContent:'center',
     alignItems:'center',
-    backgroundColor:Environment.textColor,//'green',
+    backgroundColor:Environment.textColor,
   },
 
   portraitStartMainTitle: {
-    flex:1, 
+    flex:imageBlockTitleFlexPortrait, 
     justifyContent:'center',
     alignItems:'center',
-    backgroundColor:Environment.textColor,//'green',
+    backgroundColor:Environment.textColor,
   },
 
   landscapeStartImageBlock: {
-    flex:3, 
+    flex:imageBlockFlexLandscape, 
     flexDirection: 'row', 
     justifyContent:'center',
     alignItems:'center', 
@@ -195,7 +178,7 @@ const styles = StyleSheet.create({
   },
 
   portraitStartImageBlock: {
-    flex:2, 
+    flex: imageBlockFlexPortrait, 
     flexDirection: 'row', 
     justifyContent:'center',
     alignItems:'center',
@@ -209,7 +192,7 @@ const styles = StyleSheet.create({
   titleText: {
     flex:1,
     //maxWidth:'100%',
-    backgroundColor:'steelblue',//'steelblue'
+    //backgroundColor:'steelblue',//'steelblue'
   },
 
   imageButtonTouchable: {
@@ -217,25 +200,25 @@ const styles = StyleSheet.create({
     alignItems:'center',
     margin:0,
     padding:0,
-    backgroundColor:'darkgreen',//'green',
+    //backgroundColor:'darkgreen',//'green',
   },
 
   imageButtonImage: {
     //height:iconwidth, sent as prop
     //width:iconwidth, sent as prop
     margin:0,
-    backgroundColor:'darkred',//'yellow',
+    //backgroundColor:'darkred',//'yellow',
   },
 
   bookTitle: {
     //fontWeight:'bold',
-    padding:1,
-    fontSize: moderateScale(16,0.3),
+    padding:0,
+    fontSize: imageBlockTextSize, 
     margin:0, 
     textAlign:'center',
-    backgroundColor:'darkblue', //'black';
+    //backgroundColor:'darkblue', //'black';
     color: Environment.textColor,
-    height:iconwidthLandscape*(1-0.6)/0.6,
+    height:imageBlockTextHeight,
   }
 
 });
@@ -619,19 +602,19 @@ class StartScreen extends React.Component {
       return (
         <View style={[styles.landscapeStartContainer]} onLayout={this.onLayout.bind(this)}>
           <View style={[styles.landscapeStartImageBlock]}>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={0} width={iconwidthLandscape}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={1} width={iconwidthLandscape}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={2} width={iconwidthLandscape}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={iconwidthLandscape}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={0} width={imageButtonImageMaxHeightLandscape}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={1} width={imageButtonImageMaxHeightLandscape}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={2} width={imageButtonImageMaxHeightLandscape}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={imageButtonImageMaxHeightLandscape}></ImageButton>
           </View>
           <View style={[styles.landscapeStartMainTitle]}>
             <TitleText onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage}></TitleText>
           </View>
           <View style={[styles.landscapeStartImageBlock]}>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={iconwidthLandscape}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={5} width={iconwidthLandscape}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={6} width={iconwidthLandscape}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={7} width={iconwidthLandscape}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={imageButtonImageMaxHeightLandscape}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={5} width={imageButtonImageMaxHeightLandscape}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={6} width={imageButtonImageMaxHeightLandscape}></ImageButton>
+            <ImageButton onImagePress={this.handleImagePress} bookNo={7} width={imageButtonImageMaxHeightLandscape}></ImageButton>
           </View>
         </View>
       )
@@ -640,23 +623,23 @@ class StartScreen extends React.Component {
         <View style={[styles.portraitStartContainer]} onLayout={this.onLayout.bind(this)}>
           <View style={[styles.portraitStartSubContainer]}>
             <View style={[styles.portraitStartImageBlock]}>
-              <ImageButton onImagePress={this.handleImagePress} bookNo={0} width={iconwidthPortrait}></ImageButton>
-              <ImageButton onImagePress={this.handleImagePress} bookNo={1} width={iconwidthPortrait}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={0} width={imageButtonImageMaxHeightPortrait}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={1} width={imageButtonImageMaxHeightPortrait}></ImageButton>
             </View>
             <View style={[styles.portraitStartImageBlock]}>
-              <ImageButton onImagePress={this.handleImagePress} bookNo={2} width={iconwidthPortrait}></ImageButton>
-              <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={iconwidthPortrait}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={2} width={imageButtonImageMaxHeightPortrait}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={imageButtonImageMaxHeightPortrait}></ImageButton>
             </View>
             <View style={[styles.portraitStartMainTitle]}>
               <TitleText onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage}></TitleText>
             </View>
             <View style={[styles.portraitStartImageBlock]}>
-              <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={iconwidthPortrait}></ImageButton>
-              <ImageButton onImagePress={this.handleImagePress} bookNo={5} width={iconwidthPortrait}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={imageButtonImageMaxHeightPortrait}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={5} width={imageButtonImageMaxHeightPortrait}></ImageButton>
             </View>
             <View style={[styles.portraitStartImageBlock]}>
-              <ImageButton onImagePress={this.handleImagePress} bookNo={6} width={iconwidthPortrait}></ImageButton>
-              <ImageButton onImagePress={this.handleImagePress} bookNo={7} width={iconwidthPortrait}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={6} width={imageButtonImageMaxHeightPortrait}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={7} width={imageButtonImageMaxHeightPortrait}></ImageButton>
             </View>
           </View>
         </View>
@@ -714,7 +697,7 @@ class TitleText extends React.Component {
       >
         <Image 
           style={[styles.titleText]} 
-          resizeMode = {'cover'} 
+          resizeMode = {'contain'} 
           source={this.props.source}
           >
         </Image>
