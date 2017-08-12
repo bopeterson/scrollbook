@@ -58,6 +58,23 @@ const guidelineBaseHeight = 680;
 const scale = size => mindim / guidelineBaseWidth * size;
 const verticalScale = size => maxdim / guidelineBaseHeight * size;
 const moderateScale = (size, factor = 0.5) => size + ( scale(size) - size ) * factor;
+
+
+
+console.log('screenwidth',screenwidth);
+console.log('screenheight',screenheight);
+console.log('iconwidthPortraitTemp',iconwidthPortraitTemp);
+console.log('iconheightPortraitTemp',iconheightPortraitTemp);
+console.log('iconwidthPortrait',iconwidthPortrait);
+console.log('iconwidthLandscapeTemp',iconwidthLandscapeTemp);
+console.log('iconheightLandscapeTemp',iconheightLandscapeTemp);
+console.log('iconwidthLandscape',iconwidthLandscape);
+console.log('moderateScale(16,0.3)',moderateScale(16,0.3));
+
+
+
+
+
 /*
 moderate scale on various devices with factor=0.5 and 0.8
 iphone 5s: 95, 93
@@ -67,9 +84,9 @@ iphone 7+: 109, 114
 ipad pro 9.7": 159, 195
 ipad pro 10.5": 169, 210
 ipad pro 12.9": 196, 254
-
-
 */
+
+
 
 
 //stylesheets
@@ -147,7 +164,7 @@ const styles = StyleSheet.create({
   landscapeStartContainer: {
     flex:1, 
     marginTop:0, 
-    backgroundColor:'black',//'red'
+    backgroundColor:'red',//'red'
   },
 
   portraitStartContainer: {
@@ -192,31 +209,33 @@ const styles = StyleSheet.create({
   titleText: {
     flex:1,
     //maxWidth:'100%',
-    //backgroundColor:'steelblue',//'steelblue'
+    backgroundColor:'steelblue',//'steelblue'
   },
 
   imageButtonTouchable: {
-    flex:2,
+    flex:1,
     alignItems:'center',
-    margin:2,
-    //backgroundColor:'darkgreen',//'green',
+    margin:0,
+    padding:0,
+    backgroundColor:'darkgreen',//'green',
   },
 
   imageButtonImage: {
     //height:iconwidth, sent as prop
     //width:iconwidth, sent as prop
     margin:0,
-    //backgroundColor:'darkred',//'yellow',
+    backgroundColor:'darkred',//'yellow',
   },
 
   bookTitle: {
     //fontWeight:'bold',
+    padding:1,
     fontSize: moderateScale(16,0.3),
     margin:0, 
     textAlign:'center',
-    //backgroundColor:'darkblue', //'black';
+    backgroundColor:'darkblue', //'black';
     color: Environment.textColor,
-    height:iconwidthLandscape*0.4,
+    height:iconwidthLandscape*(1-0.6)/0.6,
   }
 
 });
@@ -695,7 +714,7 @@ class TitleText extends React.Component {
       >
         <Image 
           style={[styles.titleText]} 
-          resizeMode = {'contain'} 
+          resizeMode = {'cover'} 
           source={this.props.source}
           >
         </Image>
