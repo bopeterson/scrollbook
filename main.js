@@ -11,7 +11,6 @@ import {
   TouchableOpacity,
   Linking,
   StatusBar,
-  Platform,
 } from 'react-native';
 
 import Sound from 'react-native-sound';
@@ -27,27 +26,35 @@ const Assets = require('./assets.js');
 // Enable playback in silence mode (iOS only)
 Sound.setCategory('Playback');
 
-prettylog('assets',Assets);
+//debug function
+const prettyLog = (obj,text='log') => {
+  str=JSON.stringify(obj, null, 4);
+  console.log(text+": "+str);  
+}
+
+const getOrientation = () => (
+  Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'
+);
 
 //Guideline sizes are based on standard ~5" screen mobile device
 const guidelineBaseWidth = 350;
 const guidelineBaseHeight = 680;
-const scale = size => mindim / guidelineBaseWidth * size;
-const verticalScale = size => maxdim / guidelineBaseHeight * size;
+const scale = size => minDim / guidelineBaseWidth * size;
+const verticalScale = size => maxDim / guidelineBaseHeight * size;
 const moderateScale = (size, factor = 0.5) => size + ( scale(size) - size ) * factor;
 
 //general screen size constants
 const {width:screenwidth, height:screenheight}=Dimensions.get('window');
-const maxdim=Math.max(screenheight,screenwidth); //width if landscape, height if portrait
-const mindim=Math.min(screenheight,screenwidth); //width if protrait, height if landscape
+const maxDim=Math.max(screenheight,screenwidth); //width if landscape, height if portrait
+const minDim=Math.min(screenheight,screenwidth); //width if portrait, height if landscape
 
 //size contstants for book 
-const imwidth = mindim*Environment.imagereduction;
-const imheight = imwidth / (Environment.aspectRatio*Environment.imageSideSpace);
-const indicatorwidth = imwidth/Assets.images[Assets.mainBookName].length/1.5; 
-const indicatorradius = indicatorwidth/2;
-const indicatormargin = (imwidth/Assets.images[Assets.mainBookName].length-indicatorwidth)/2;
-const speakerwidth = indicatorwidth*0.8;
+const imageWidth = minDim*Environment.imagereduction;
+const imageHeight = imageWidth / (Environment.aspectRatio*Environment.imageSideSpace);
+const indicatorWidth = imageWidth/Assets.images[Assets.mainBookName].length/1.5; 
+const indicatorRadius = indicatorWidth/2;
+const indicatorMargin = (imageWidth/Assets.images[Assets.mainBookName].length-indicatorWidth)/2;
+const speakerWidth = indicatorWidth*0.8;
 
 //size constants for start screen
 const imageBlockTextSize = moderateScale(16,0.3);
@@ -55,19 +62,21 @@ const imageBlockTextMaxRows = 2;
 const imageBlockTextHeight = imageBlockTextSize * imageBlockTextMaxRows * 1.3; //1.1875 minimum factor on ios
 //Landscape
 const imageBlockFlexLandscape = 3; //could be in environment
-const imageBlockTitleFlexLandscape = 1; //could be in environment
-const imageBlockHeightLandscape = mindim * imageBlockFlexLandscape /(2*imageBlockFlexLandscape+imageBlockTitleFlexLandscape);
+const titleTextFlexLandscape = 1; //could be in environment
+const imageBlockHeightLandscape = minDim * imageBlockFlexLandscape /(2*imageBlockFlexLandscape+titleTextFlexLandscape);
+const titleTextHeightLandscape = minDim * titleTextFlexLandscape /(2*imageBlockFlexLandscape+titleTextFlexLandscape);
 const imageButtonMaxHeightLandscape = imageBlockHeightLandscape * 0.9; //image and text
-let imageButtonImageMaxWidthLandscape = maxdim/4 * 0.9;
+let imageButtonImageMaxWidthLandscape = maxDim/4 * 0.9;
 let imageButtonImageMaxHeightLandscape = imageButtonMaxHeightLandscape - imageBlockTextHeight;
 imageButtonImageMaxHeightLandscape=Math.min(imageButtonImageMaxHeightLandscape,imageButtonImageMaxWidthLandscape);
 imageButtonImageMaxWidthLandscape=imageButtonImageMaxHeightLandscape;
 //Portrait
 const imageBlockFlexPortrait = 2; //could be in environment
-const imageBlockTitleFlexPortrait = 1; //could be in environment
-const imageBlockHeightPortrait = maxdim * imageBlockFlexPortrait /(4*imageBlockFlexPortrait+imageBlockTitleFlexPortrait);
+const titleTextFlexPortrait = 1; //could be in environment
+const imageBlockHeightPortrait = (maxDim-24) * imageBlockFlexPortrait /(4*imageBlockFlexPortrait+titleTextFlexPortrait);
+const titleTextHeightPortrait = (maxDim-24) * titleTextFlexPortrait /(4*imageBlockFlexPortrait+titleTextFlexPortrait);
 const imageButtonMaxHeightPortrait = imageBlockHeightPortrait * 0.9; //image and text
-let imageButtonImageMaxWidthPortrait = maxdim/2 * 0.9;
+let imageButtonImageMaxWidthPortrait = maxDim/2 * 0.9;
 let imageButtonImageMaxHeightPortrait = imageButtonMaxHeightPortrait - imageBlockTextHeight;
 imageButtonImageMaxHeightPortrait=Math.min(imageButtonImageMaxHeightPortrait,imageButtonImageMaxWidthPortrait);
 imageButtonImageMaxWidthPortrait=imageButtonImageMaxHeightPortrait;
@@ -87,7 +96,7 @@ const styles = StyleSheet.create({
   },
   
   middle: {
-    width: imwidth,
+    width: imageWidth,
   },
   
   right: {
@@ -97,7 +106,7 @@ const styles = StyleSheet.create({
 
   leftVerticalPlaceholder: {
     //backgroundColor:'darkred',
-    height:imheight,
+    height:imageHeight,
     width:10,
   },
 
@@ -109,20 +118,20 @@ const styles = StyleSheet.create({
   },
 
   imageViewContainer: {
-    height: imheight, 
-    backgroundColor: '#222222'
+    height: imageHeight, 
+    backgroundColor: '#111111'
   },
 
   image: { 
-    width: imwidth, 
-    height: imheight 
+    width: imageWidth, 
+    height: imageHeight 
   },
 
   indicator: {
-    width: indicatorwidth, 
-    height: indicatorwidth,
-    borderRadius: indicatorradius,
-    margin: indicatormargin, 
+    width: indicatorWidth, 
+    height: indicatorWidth,
+    borderRadius: indicatorRadius,
+    margin: indicatorMargin, 
     backgroundColor: Environment.buttonColor, 
     justifyContent: 'center', 
     alignItems: 'center'
@@ -133,14 +142,14 @@ const styles = StyleSheet.create({
   },
 
   speaker: {
-    width: speakerwidth, 
-    height: speakerwidth
+    width: speakerWidth, 
+    height: speakerWidth
   },
 
   backButton: {
-    width: indicatorwidth, 
-    height: indicatorwidth,
-    margin: indicatormargin, 
+    width: indicatorWidth, 
+    height: indicatorWidth,
+    margin: indicatorMargin, 
     backgroundColor: Environment.buttonColor,
   },
 
@@ -156,17 +165,17 @@ const styles = StyleSheet.create({
   },
 
   landscapeStartMainTitle: {
-    flex:imageBlockTitleFlexLandscape, 
+    flex:titleTextFlexLandscape, 
     justifyContent:'center',
     alignItems:'center',
-    backgroundColor:Environment.textColor,
+    backgroundColor:'black',//Environment.textColor, //Environment.textColor eller ingen color beroende på om man använder titleText eller titleTextCustomFont
   },
 
   portraitStartMainTitle: {
-    flex:imageBlockTitleFlexPortrait, 
+    flex:titleTextFlexPortrait, 
     justifyContent:'center',
     alignItems:'center',
-    backgroundColor:Environment.textColor,
+    backgroundColor:'black',//Environment.textColor, //Environment.textColor eller ingen color beroende på om man använder titleText eller titleTextCustomFont
   },
 
   landscapeStartImageBlock: {
@@ -185,7 +194,8 @@ const styles = StyleSheet.create({
   },
 
   portraitStartSubContainer: {//adjust for status bar on top of portrait
-    flex:1,marginTop:24, 
+    flex:1,
+    marginTop:24, 
     backgroundColor:'black',//'black',
   },  
 
@@ -193,6 +203,14 @@ const styles = StyleSheet.create({
     flex:1,
     //maxWidth:'100%',
     //backgroundColor:'steelblue',//'steelblue'
+  },
+
+  titleTextCustomFont: {
+    //height: sent as prop
+    //fontFamily:'Futura', //'Iowan Old Style', 
+    //fontWeight: 'bold',
+    color: Environment.textColor,
+    fontSize:moderateScale(28,0.9),
   },
 
   imageButtonTouchable: {
@@ -204,14 +222,13 @@ const styles = StyleSheet.create({
   },
 
   imageButtonImage: {
-    //height:iconwidth, sent as prop
-    //width:iconwidth, sent as prop
+    //height sent as prop
+    //width sent as prop
     margin:0,
     //backgroundColor:'darkred',//'yellow',
   },
 
   bookTitle: {
-    //fontWeight:'bold',
     padding:0,
     fontSize: imageBlockTextSize, 
     margin:0, 
@@ -223,13 +240,6 @@ const styles = StyleSheet.create({
 
 });
 
-//debug functions
-function prettylog(text,obj) {
-  str=JSON.stringify(obj, null, 4);
-  console.log(text+": "+str);
-}
-
-prettylog("windowdimensions",Dimensions.get('window'));
 
 export default class MainView extends React.Component {
   static navigationOptions = {
@@ -244,27 +254,23 @@ export default class MainView extends React.Component {
     this.book=this.props.navigation.state.params.book;
     this.images=Assets.images[this.book];
     
-    //this map sometimes fail on Android. Timing problem???. Use loop instead
     //this.sounds = Assets.soundFiles[this.book].map((src)=>{return new Sound(src, Sound.MAIN_BUNDLE)});
-
     this.sounds = [];
     for (let i=0;i<Assets.soundFiles[this.book].length;i++) {
       var oneSound=new Sound(Assets.soundFiles[this.book][i], Sound.MAIN_BUNDLE, (error)=>{
         if (error) {
-          this.setState({logtext:'failed to load sound '+error});
           return;
         }
-        this.setState({logtext:'loaded'+oneSound.getDuration()})
       });
       this.sounds.push(oneSound);
     }
 
     this.state = {
-      orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT',
+      orientation:getOrientation(),
       activeFrame: 0,
       scrollEnabled: true,
       speaking: false,
-      logtext: Math.floor(moderateScale(100))+' '+Math.floor(moderateScale(100,0.8)),
+      logtext: JSON.stringify(Dimensions.get('window')),
       //load 2 images from start, or all images:
       framesToLoad: Environment.gradualLoad ? 2 : Assets.images[this.book].length, 
     };
@@ -286,7 +292,7 @@ export default class MainView extends React.Component {
     }
   }
 
-  componentDidUpdate(prevProps, prevState) {    
+  componentDidUpdate(prevProps, prevState) {
     //play sound when swiped to new image, except when swiped to cover image (frame 0)
     if (prevState.activeFrame!==this.state.activeFrame) {
       if (Environment.gradualLoad) {
@@ -312,9 +318,7 @@ export default class MainView extends React.Component {
   }
 
   delayedPlay(frame,delay1,delay2) {
-    this.setState({logtext:'will try to play'});
     this.speakerTimerID = setTimeout(()=>{
-      console.log('delayedPlay');
       clearTimeout(this.scrollLockTimerID);
       this.setState({scrollEnabled:false,speaking:true});
       this.forcedScrollParent(frame);
@@ -322,13 +326,8 @@ export default class MainView extends React.Component {
         this.sounds[frame].play((success) => {
           if (success) {
             this.setState({scrollEnabled:true,speaking:false});
-            //console.log('successfully finished playing '+ (frame));
-            this.setState({logtext:'finished playing'});
           } else {
             this.setState({scrollEnabled:true,speaking:false});
-            this.setState({logtext:'playing failed '+success});
-
-            //console.log('playback of '+(frame)+'failed');
           }
         });
       },delay2);
@@ -342,20 +341,16 @@ export default class MainView extends React.Component {
   }
 
   handleBackButtonPress() {
-    const backAction = NavigationActions.back({
-      //key: 'Profile'
-    });    
     //Back button can be pressed while speaking
-    //Consider disabling the back button while speaking 
+    const backAction = NavigationActions.back({});
     this.props.navigation.dispatch(backAction);
   }
 
-    
   handleImageViewScroll(e) {
     const x = e.contentOffset.x;
-    const leftBorderFrame = Math.floor(x/imwidth);
-    const approachingFrame = Math.floor(x/imwidth+Environment.delta);
-    const signedOffset = ((x+imwidth/2)%imwidth-imwidth/2)/imwidth;//simplify???
+    const leftBorderFrame = Math.floor(x/imageWidth);
+    const approachingFrame = Math.floor(x/imageWidth+Environment.delta);
+    const signedOffset = ((x+imageWidth/2)%imageWidth-imageWidth/2)/imageWidth;//relative distance from border
     const offset = Math.abs(signedOffset);
     
     if (offset < Environment.delta) {
@@ -367,16 +362,20 @@ export default class MainView extends React.Component {
   
   onLayout(e) {
     const {width, height} = Dimensions.get('window');
-    this.setState({orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'});
+    this.setState({orientation:getOrientation()});
+    this.setState({logtext:getOrientation()})
   }
 
   render() {
-    const { params } = this.props.navigation.state;
     return (
      <View style={[styles.container]} onLayout={this.onLayout.bind(this)}>
         <View style={[styles.left]}>
           <View style={[styles.leftVerticalPlaceholder]}></View>
-          <BackButton onBackButtonPress={this.handleBackButtonPress} orientation={this.state.orientation} renderIf={'LANDSCAPE'}/>
+          <BackButton 
+            onBackButtonPress={this.handleBackButtonPress} 
+            orientation={this.state.orientation} 
+            renderIf={'LANDSCAPE'}
+          />
         </View>
         <View style={[styles.middle]}>
           <View style={[styles.mainContent]}>
@@ -396,17 +395,17 @@ export default class MainView extends React.Component {
               images={this.images}
             />
               
-            <BackButton onBackButtonPress={this.handleBackButtonPress}
-orientation={this.state.orientation} renderIf={'PORTRAIT'} />
-
-            
+            <BackButton 
+              onBackButtonPress={this.handleBackButtonPress}
+              orientation={this.state.orientation} 
+              renderIf={'PORTRAIT'} 
+            />
           </View>
         </View>
         <View style={[styles.right]}>
             {<Log text={this.state.logtext} />}
         </View>
       </View>
-
     );
   }
 }
@@ -418,16 +417,14 @@ class ImageView extends React.Component {
   }
   
   componentDidMount() {
-
   }
   
   handleScroll(e) {
-    //prettylog("scroll event",e.nativeEvent);
     this.props.onImageViewScroll(e.nativeEvent);
   }
       
   forcedScrollChild(frame) {
-    this._scrollView.scrollTo({x: frame*imwidth, y: 0, animated: Environment.animateForcedScroll})
+    this._scrollView.scrollTo({x: frame*imageWidth, y: 0, animated: Environment.animateForcedScroll})
   }
 
   render() {
@@ -514,7 +511,6 @@ class ProgressView extends React.Component {
       <View>
         <View style={[styles.progressView]}>
           {this.props.images.map((_, i) => {
-            //would be good to make this content into a component
             let opacity=0.3;
             let activeOpacity=1;
             let showSpeakerCurrent=false;
@@ -547,7 +543,7 @@ class Log extends React.Component {
   }
   render() {
     if (Environment.showLog) {
-      return <Text style={{ color: 'white', fontFamily: 'Courier' }}>Log: {this.props.text}</Text>
+      return <Text style={{ color: 'white', fontFamily: 'Courier' }}>{this.props.text}</Text>
     } else {
       return null;
     }
@@ -562,17 +558,15 @@ class StartScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT',
+      orientation:getOrientation(),
     }
-    super(props);
     this.handleImagePress = this.handleImagePress.bind(this);
     this.handleTitlePress = this.handleTitlePress.bind(this);
-    
   }
   
   onLayout(e) {
     const {width, height} = Dimensions.get('window');
-    this.setState({orientation:Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'});
+    this.setState({orientation:getOrientation()});
   }
   
   handleImagePress(book) {
@@ -581,11 +575,10 @@ class StartScreen extends React.Component {
   }
 
   handleTitlePress() {
-    //const { navigate } = this.props.navigation;
-    //navigate('Credits');
+    const { navigate } = this.props.navigation;
+    navigate('Credits');
 
-
-    throw 'Controlled testing error'; //force app to error state
+    //throw 'Controlled testing error'; //force app to error state
     // url="http://asynkronix.se";
     // Linking.openURL(url).catch(err => console.error('An error occurred', err));
     
@@ -593,11 +586,10 @@ class StartScreen extends React.Component {
 
 
   render() {
-    if (Platform.OS==='android') {
+    if (Environment.platform==='android') {
       StatusBar.setBackgroundColor('black');
       StatusBar.setBarStyle('light-content');
     }
-    const { navigate } = this.props.navigation;
     if (this.state.orientation=='LANDSCAPE') {
       return (
         <View style={[styles.landscapeStartContainer]} onLayout={this.onLayout.bind(this)}>
@@ -608,7 +600,7 @@ class StartScreen extends React.Component {
             <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={imageButtonImageMaxHeightLandscape}></ImageButton>
           </View>
           <View style={[styles.landscapeStartMainTitle]}>
-            <TitleText onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage}></TitleText>
+              <TitleTextCustomFont onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage} height={titleTextHeightLandscape}/>
           </View>
           <View style={[styles.landscapeStartImageBlock]}>
             <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={imageButtonImageMaxHeightLandscape}></ImageButton>
@@ -631,7 +623,7 @@ class StartScreen extends React.Component {
               <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={imageButtonImageMaxHeightPortrait}></ImageButton>
             </View>
             <View style={[styles.portraitStartMainTitle]}>
-              <TitleText onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage}></TitleText>
+              <TitleTextCustomFont onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage} height={titleTextHeightPortrait}/>
             </View>
             <View style={[styles.portraitStartImageBlock]}>
               <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={imageButtonImageMaxHeightPortrait}></ImageButton>
@@ -648,34 +640,34 @@ class StartScreen extends React.Component {
   }
 }
 
+class TitleTextCustomFont extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handlePress=this.handlePress.bind(this);
+  }
 
-class TitleTextTest extends React.Component {
+  handlePress(e) {    
+    //let parent handle:     
+    this.props.onTitlePress();
+    
+  }
+
   render() {
-    return ( 
-      <Text 
-        style={{fontFamily: 'Iowan Old Style', fontWeight: 'bold', color:'#f4c053',fontSize:moderateScale(28,0.9)}} 
-        resizeMode = {'contain'} 
-        source={this.props.source}
+    return (
+      <TouchableOpacity 
+        onPress={(e) => this.handlePress(e)} 
+        activeOpacity={0.6}
       >
-        Så gör man
-      </Text>
+        <Text 
+          style={[styles.titleTextCustomFont,{height:this.props.height}]} 
+          resizeMode = {'contain'} 
+        >
+            Så gör man
+        </Text>
+      </TouchableOpacity>
     )
   }
 }
-
-class OldTitleText extends React.Component {
-  render() {
-    return ( 
-      <Image 
-        style={[styles.titleText]} 
-        resizeMode = {'contain'} 
-        source={this.props.source}
-      >
-      </Image>
-    )
-  }
-}
-
 
 class TitleText extends React.Component {
   constructor(props) {
@@ -726,8 +718,11 @@ class ImageButton extends React.Component {
         onPress={(e) => this.handlePress(e,this.book)} 
         activeOpacity={0.6}
       >
-        <Image style={[styles.imageButtonImage,{width:this.props.width,height:this.props.width}]} resizeMode = {'contain'} source={this.src}>
-        
+        <Image 
+          style={[styles.imageButtonImage,{width:this.props.width,height:this.props.width}]} 
+          resizeMode = {'contain'} 
+          source={this.src}
+        >
         </Image>
         <BookTitle book={Assets.bookTitles[this.book]}>
         </BookTitle>
@@ -760,4 +755,3 @@ const MainNavigator = StackNavigator(
 );
 
 AppRegistry.registerComponent('Flyg', () => MainNavigator);
-
