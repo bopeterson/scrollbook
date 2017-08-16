@@ -15,8 +15,9 @@ const _Environments = {
     imagereduction: 0.8,
     scrollThrottle: 16, 
     gradualLoad: true,
-    showLog: true,
+    showLog: false,
     showBookTitle: true,
+    statusBarHeight: 24,
     buttonColor: '#fecd0b', //red '#FF5959', yellow '#f4c053', 
     textColor: '#fecd0b', //red '#FF5959', yellow '#f4c053',bonasignum: '#fecd0b'
 
@@ -35,6 +36,7 @@ const _Environments = {
     gradualLoad: true,
     showLog: false,
     showBookTitle: true,
+    statusBarHeight: 24, //could maybe be 0
     buttonColor: '#fecd0b', //red '#FF5959', yellow '#f4c053'
     textColor: '#fecd0b', //red '#FF5959', yellow '#f4c053'
   }

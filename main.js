@@ -63,8 +63,8 @@ const imageBlockTextHeight = imageBlockTextSize * imageBlockTextMaxRows * 1.3; /
 //Landscape
 const imageBlockFlexLandscape = 3; //could be in environment
 const titleTextFlexLandscape = 1; //could be in environment
-const imageBlockHeightLandscape = minDim * imageBlockFlexLandscape /(2*imageBlockFlexLandscape+titleTextFlexLandscape);
-const titleTextHeightLandscape = minDim * titleTextFlexLandscape /(2*imageBlockFlexLandscape+titleTextFlexLandscape);
+const imageBlockHeightLandscape = (minDim-Environment.statusBarHeight) * imageBlockFlexLandscape /(2*imageBlockFlexLandscape+titleTextFlexLandscape);
+const titleTextHeightLandscape = (minDim-Environment.statusBarHeight) * titleTextFlexLandscape /(2*imageBlockFlexLandscape+titleTextFlexLandscape);
 const imageButtonMaxHeightLandscape = imageBlockHeightLandscape * 0.9; //image and text
 let imageButtonImageMaxWidthLandscape = maxDim/4 * 0.9;
 let imageButtonImageMaxHeightLandscape = imageButtonMaxHeightLandscape - imageBlockTextHeight;
@@ -73,8 +73,8 @@ imageButtonImageMaxWidthLandscape=imageButtonImageMaxHeightLandscape;
 //Portrait
 const imageBlockFlexPortrait = 2; //could be in environment
 const titleTextFlexPortrait = 1; //could be in environment
-const imageBlockHeightPortrait = (maxDim-24) * imageBlockFlexPortrait /(4*imageBlockFlexPortrait+titleTextFlexPortrait);
-const titleTextHeightPortrait = (maxDim-24) * titleTextFlexPortrait /(4*imageBlockFlexPortrait+titleTextFlexPortrait);
+const imageBlockHeightPortrait = (maxDim-Environment.statusBarHeight) * imageBlockFlexPortrait /(4*imageBlockFlexPortrait+titleTextFlexPortrait);
+const titleTextHeightPortrait = (maxDim-Environment.statusBarHeight) * titleTextFlexPortrait /(4*imageBlockFlexPortrait+titleTextFlexPortrait);
 const imageButtonMaxHeightPortrait = imageBlockHeightPortrait * 0.9; //image and text
 let imageButtonImageMaxWidthPortrait = maxDim/2 * 0.9;
 let imageButtonImageMaxHeightPortrait = imageButtonMaxHeightPortrait - imageBlockTextHeight;
@@ -83,7 +83,8 @@ imageButtonImageMaxWidthPortrait=imageButtonImageMaxHeightPortrait;
 
 //stylesheets
 const styles = StyleSheet.create({
-  container: {flex: 1, 
+  container: {
+    flex: 1, 
     flexDirection: 'row',
     backgroundColor: 'black',
   },
@@ -193,9 +194,16 @@ const styles = StyleSheet.create({
     alignItems:'center',
   },
 
-  portraitStartSubContainer: {//adjust for status bar on top of portrait
+  landscapeStartSubContainer: {//adjust for status bar on top
     flex:1,
-    marginTop:24, 
+    marginTop:Environment.statusBarHeight, 
+    backgroundColor:'black',//'black',
+  },  
+
+
+  portraitStartSubContainer: {//adjust for status bar on
+    flex:1,
+    marginTop:Environment.statusBarHeight, 
     backgroundColor:'black',//'black',
   },  
 
@@ -227,7 +235,7 @@ const styles = StyleSheet.create({
     margin:0,
     //backgroundColor:'darkred',//'yellow',
   },
-
+  
   bookTitle: {
     padding:0,
     fontSize: imageBlockTextSize, 
@@ -236,15 +244,31 @@ const styles = StyleSheet.create({
     //backgroundColor:'darkblue', //'black';
     color: Environment.textColor,
     height:imageBlockTextHeight,
-  }
-
+  },
+  
+  creditsContainer: {
+    flex: 1,
+    padding:20,
+    backgroundColor:'lightyellow',
+  },
+  
+  creditsText: {
+    fontSize: 38,
+    color:'steelblue',
+    //backgroundColor:'darkblue',
+    
+  },
+  
+  creditsNavigator: {
+    //backgroundColor:'black',
+  },
 });
-
 
 export default class MainView extends React.Component {
   static navigationOptions = {
     title: 'Bok',
     gesturesEnabled: false,
+    //header: null, use headerMode instead
   };
 
   constructor(props) {
@@ -367,6 +391,7 @@ export default class MainView extends React.Component {
   }
 
   render() {
+    //StatusBar.setBarStyle('light-content');
     return (
      <View style={[styles.container]} onLayout={this.onLayout.bind(this)}>
         <View style={[styles.left]}>
@@ -476,7 +501,7 @@ class BackButton extends React.Component {
   }
 
   render() {
-    if (this.props.orientation==this.props.renderIf) {      
+    if (this.props.renderIf===this.props.orientation || this.props.renderIf==='ALWAYS') {      
       return (
         <TouchableOpacity 
           onPress={(e) => this.handlePress(e)} 
@@ -552,7 +577,8 @@ class Log extends React.Component {
 
 class StartScreen extends React.Component {
   static navigationOptions = {
-    title: 'Start',
+    title: 'Välj bok',
+    //header: null, use headerMode instead
   };
   
   constructor(props) {
@@ -577,11 +603,7 @@ class StartScreen extends React.Component {
   handleTitlePress() {
     const { navigate } = this.props.navigation;
     navigate('Credits');
-
-    //throw 'Controlled testing error'; //force app to error state
-    // url="http://asynkronix.se";
-    // Linking.openURL(url).catch(err => console.error('An error occurred', err));
-    
+    //throw 'Controlled testing error'; //force app to error state    
   }
 
 
@@ -593,20 +615,22 @@ class StartScreen extends React.Component {
     if (this.state.orientation=='LANDSCAPE') {
       return (
         <View style={[styles.landscapeStartContainer]} onLayout={this.onLayout.bind(this)}>
-          <View style={[styles.landscapeStartImageBlock]}>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={0} width={imageButtonImageMaxHeightLandscape}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={1} width={imageButtonImageMaxHeightLandscape}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={2} width={imageButtonImageMaxHeightLandscape}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={imageButtonImageMaxHeightLandscape}></ImageButton>
-          </View>
-          <View style={[styles.landscapeStartMainTitle]}>
-              <TitleTextCustomFont onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage} height={titleTextHeightLandscape}/>
-          </View>
-          <View style={[styles.landscapeStartImageBlock]}>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={imageButtonImageMaxHeightLandscape}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={5} width={imageButtonImageMaxHeightLandscape}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={6} width={imageButtonImageMaxHeightLandscape}></ImageButton>
-            <ImageButton onImagePress={this.handleImagePress} bookNo={7} width={imageButtonImageMaxHeightLandscape}></ImageButton>
+          <View style={[styles.landscapeStartSubContainer]}>
+            <View style={[styles.landscapeStartImageBlock]}>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={0} width={imageButtonImageMaxHeightLandscape}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={1} width={imageButtonImageMaxHeightLandscape}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={2} width={imageButtonImageMaxHeightLandscape}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={imageButtonImageMaxHeightLandscape}></ImageButton>
+            </View>
+            <View style={[styles.landscapeStartMainTitle]}>
+                <TitleTextCustomFont onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage} height={titleTextHeightLandscape}/>
+            </View>
+            <View style={[styles.landscapeStartImageBlock]}>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={imageButtonImageMaxHeightLandscape}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={5} width={imageButtonImageMaxHeightLandscape}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={6} width={imageButtonImageMaxHeightLandscape}></ImageButton>
+              <ImageButton onImagePress={this.handleImagePress} bookNo={7} width={imageButtonImageMaxHeightLandscape}></ImageButton>
+            </View>
           </View>
         </View>
       )
@@ -745,10 +769,81 @@ class BookTitle extends React.Component {
   }
 }
 
+class Credits extends React.Component {
+  static navigationOptions = {
+    title: 'Om böckerna',
+    headerStyle: styles.creditsNavigator,
+  };
+  
+  constructor(props) {
+    super(props);
+    
+    // this.state = {
+    //   orientation:getOrientation(),
+    // }
+    this.handleLinkPress = this.handleLinkPress.bind(this);
+    this.handleBackButtonPress = this.handleBackButtonPress.bind(this);
+    
+  }
+  
+  handleLinkPress(e,url) {
+     //url="http://asynkronix.se";
+     Linking.openURL(url).catch(err => console.error('An error occurred', err));
+    
+  }
+  
+  handleBackButtonPress() {
+    //Back button can be pressed while speaking
+    const backAction = NavigationActions.back({});
+    this.props.navigation.dispatch(backAction);
+  }
+  
+  
+  onLayout() {
+    
+  }
+  
+  render () {    
+    //xxx layout ej klar
+    return (
+      
+      
+      
+        <View style={[styles.landscapeStartContainer]} onLayout={this.onLayout.bind(this)}>
+          <View style={[styles.landscapeStartSubContainer]}>
+      <View style={[styles.creditsContainer]}>
+      
+        <Text style={[styles.creditsText]}>Så gör man - Layout ej klar!</Text>
+        <Text>Så gör man är ett läromedel av Ann Gomér, BonaSignum med illustrationer av Carolina Ståhlberg. Appen är utvecklad i samarbete med Asynkronix</Text>
+      <TouchableOpacity
+        onPress={(e) => this.handleLinkPress(e,'http://bonasignum.se')}
+        > 
+        <Text>bonasignum.se</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={(e) => this.handleLinkPress(e,'http://asynkronix.se')}
+      > 
+        <Text>asynkronix.se</Text>
+      </TouchableOpacity>
+      <BackButton 
+        onBackButtonPress={this.handleBackButtonPress} 
+        //orientation={this.state.orientation} 
+        renderIf={'ALWAYS'}
+      />
+        
+
+      </View>
+      </View>
+      </View>
+    );
+  };
+}
+
 const MainNavigator = StackNavigator(
   {
     Start: { screen: StartScreen },
     Main: { screen: MainView },
+    Credits: { screen: Credits }
   },{
     headerMode:'none'
   }
