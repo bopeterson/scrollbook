@@ -19,7 +19,12 @@ const _Environments = {
     showBookTitle: true,
     statusBarHeight: 24,
     buttonColor: '#fecd0b', //red '#FF5959', yellow '#f4c053', 
-    textColor: '#fecd0b', //red '#FF5959', yellow '#f4c053',bonasignum: '#fecd0b'
+    textColor: 'black',//'#fecd0b', //red '#FF5959', yellow '#f4c053',bonasignum: '#fecd0b'
+    mainViewColor: 'black',
+    startViewColor:'#fecd0b',
+    creditsViewColor: 'lightyellow',
+    statusBarColorLandscape: '#fecd0b',
+    statusBarColorPortrait: '#e5b909', //xxx eller black eller fecd0b
 
   },
   android: {
@@ -38,7 +43,7 @@ const _Environments = {
     showBookTitle: true,
     statusBarHeight: 24, //could maybe be 0
     buttonColor: '#fecd0b', //red '#FF5959', yellow '#f4c053'
-    textColor: '#fecd0b', //red '#FF5959', yellow '#f4c053'
+    textColor: 'black',//'#fecd0b', //red '#FF5959', yellow '#f4c053',bonasignum: '#fecd0b'
   }
   
 };

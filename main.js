@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1, 
     flexDirection: 'row',
-    backgroundColor: 'black',
+    backgroundColor: Environment.mainViewColor,
   },
 
   left: {
@@ -106,7 +106,6 @@ const styles = StyleSheet.create({
   },
 
   leftVerticalPlaceholder: {
-    //backgroundColor:'darkred',
     height:imageHeight,
     width:10,
   },
@@ -157,26 +156,26 @@ const styles = StyleSheet.create({
   landscapeStartContainer: {
     flex:1, 
     marginTop:0, 
-    backgroundColor:'black',//'red'
+    backgroundColor:Environment.statusBarColorLandscape,
   },
 
   portraitStartContainer: {
     flex:1,
-    backgroundColor:'black',//'black'
+    backgroundColor:Environment.statusBarColorPortrait,
   },
 
   landscapeStartMainTitle: {
     flex:titleTextFlexLandscape, 
     justifyContent:'center',
     alignItems:'center',
-    backgroundColor:'black',//Environment.textColor, //Environment.textColor eller ingen color beroende på om man använder titleText eller titleTextCustomFont
+    backgroundColor:Environment.startViewColor,//xxx Environment.textColor, //Environment.textColor eller ingen color beroende på om man använder titleText eller titleTextCustomFont
   },
 
   portraitStartMainTitle: {
     flex:titleTextFlexPortrait, 
     justifyContent:'center',
     alignItems:'center',
-    backgroundColor:'black',//Environment.textColor, //Environment.textColor eller ingen color beroende på om man använder titleText eller titleTextCustomFont
+    backgroundColor:Environment.startViewColor,//xxx Environment.textColor, //Environment.textColor eller ingen color beroende på om man använder titleText eller titleTextCustomFont
   },
 
   landscapeStartImageBlock: {
@@ -184,7 +183,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     justifyContent:'center',
     alignItems:'center', 
-    //backgroundColor:'orange',//'darkblue',
   },
 
   portraitStartImageBlock: {
@@ -197,20 +195,18 @@ const styles = StyleSheet.create({
   landscapeStartSubContainer: {//adjust for status bar on top
     flex:1,
     marginTop:Environment.statusBarHeight, 
-    backgroundColor:'black',//'black',
+    backgroundColor:Environment.startViewColor,
   },  
 
 
   portraitStartSubContainer: {//adjust for status bar on
     flex:1,
     marginTop:Environment.statusBarHeight, 
-    backgroundColor:'black',//'black',
+    backgroundColor:Environment.startViewColor,
   },  
 
   titleText: {
     flex:1,
-    //maxWidth:'100%',
-    //backgroundColor:'steelblue',//'steelblue'
   },
 
   titleTextCustomFont: {
@@ -226,14 +222,12 @@ const styles = StyleSheet.create({
     alignItems:'center',
     margin:0,
     padding:0,
-    //backgroundColor:'darkgreen',//'green',
   },
 
   imageButtonImage: {
     //height sent as prop
     //width sent as prop
     margin:0,
-    //backgroundColor:'darkred',//'yellow',
   },
   
   bookTitle: {
@@ -241,7 +235,6 @@ const styles = StyleSheet.create({
     fontSize: imageBlockTextSize, 
     margin:0, 
     textAlign:'center',
-    //backgroundColor:'darkblue', //'black';
     color: Environment.textColor,
     height:imageBlockTextHeight,
   },
@@ -686,7 +679,7 @@ class TitleTextCustomFont extends React.Component {
           style={[styles.titleTextCustomFont,{height:this.props.height}]} 
           resizeMode = {'contain'} 
         >
-            Så gör man
+          {Assets.mainTitleText}
         </Text>
       </TouchableOpacity>
     )
