@@ -168,7 +168,6 @@ const styles = StyleSheet.create({
     flex:titleTextFlexLandscape, 
     justifyContent:'center',
     alignItems:'center',
-    backgroundColor:Environment.startViewColor,//xxx Environment.textColor, //Environment.textColor eller ingen color beroende på om man använder titleText eller titleTextCustomFont
     backgroundColor:Environment.startViewColor,
   },
 
@@ -613,6 +612,7 @@ class StartScreen extends React.Component {
               <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={imageButtonImageMaxHeightLandscape}></ImageButton>
             </View>
             <View style={[styles.landscapeStartMainTitle]}>
+                <TitleText onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage} height={titleTextHeightLandscape}/>
             </View>
             <View style={[styles.landscapeStartImageBlock]}>
               <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={imageButtonImageMaxHeightLandscape}></ImageButton>
@@ -636,6 +636,7 @@ class StartScreen extends React.Component {
               <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={imageButtonImageMaxHeightPortrait}></ImageButton>
             </View>
             <View style={[styles.portraitStartMainTitle]}>
+              <TitleText onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage} height={titleTextHeightPortrait}/>
             </View>
             <View style={[styles.portraitStartImageBlock]}>
               <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={imageButtonImageMaxHeightPortrait}></ImageButton>
@@ -652,6 +653,7 @@ class StartScreen extends React.Component {
   }
 }
 
+class TitleText extends React.Component {
   constructor(props) {
     super(props);
     this.handlePress=this.handlePress.bind(this);
@@ -679,7 +681,6 @@ class StartScreen extends React.Component {
     )
   }
 }
-
 
 
 
@@ -764,12 +765,9 @@ class Credits extends React.Component {
     
   }
   
-  render () {    
+  render () {
     //xxx layout ej klar
     return (
-      
-      
-      
         <View style={[styles.landscapeStartContainer]} onLayout={this.onLayout.bind(this)}>
           <View style={[styles.landscapeStartSubContainer]}>
       <View style={[styles.creditsContainer]}>
