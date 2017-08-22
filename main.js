@@ -169,13 +169,14 @@ const styles = StyleSheet.create({
     justifyContent:'center',
     alignItems:'center',
     backgroundColor:Environment.startViewColor,//xxx Environment.textColor, //Environment.textColor eller ingen color beroende på om man använder titleText eller titleTextCustomFont
+    backgroundColor:Environment.startViewColor,
   },
 
   portraitStartMainTitle: {
     flex:titleTextFlexPortrait, 
     justifyContent:'center',
     alignItems:'center',
-    backgroundColor:Environment.startViewColor,//xxx Environment.textColor, //Environment.textColor eller ingen color beroende på om man använder titleText eller titleTextCustomFont
+    backgroundColor:Environment.startViewColor,
   },
 
   landscapeStartImageBlock: {
@@ -206,10 +207,6 @@ const styles = StyleSheet.create({
   },  
 
   titleText: {
-    flex:1,
-  },
-
-  titleTextCustomFont: {
     //height: sent as prop
     //fontFamily:'Futura', //'Iowan Old Style', 
     //fontWeight: 'bold',
@@ -616,7 +613,6 @@ class StartScreen extends React.Component {
               <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={imageButtonImageMaxHeightLandscape}></ImageButton>
             </View>
             <View style={[styles.landscapeStartMainTitle]}>
-                <TitleTextCustomFont onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage} height={titleTextHeightLandscape}/>
             </View>
             <View style={[styles.landscapeStartImageBlock]}>
               <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={imageButtonImageMaxHeightLandscape}></ImageButton>
@@ -640,7 +636,6 @@ class StartScreen extends React.Component {
               <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={imageButtonImageMaxHeightPortrait}></ImageButton>
             </View>
             <View style={[styles.portraitStartMainTitle]}>
-              <TitleTextCustomFont onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage} height={titleTextHeightPortrait}/>
             </View>
             <View style={[styles.portraitStartImageBlock]}>
               <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={imageButtonImageMaxHeightPortrait}></ImageButton>
@@ -657,7 +652,6 @@ class StartScreen extends React.Component {
   }
 }
 
-class TitleTextCustomFont extends React.Component {
   constructor(props) {
     super(props);
     this.handlePress=this.handlePress.bind(this);
@@ -676,7 +670,7 @@ class TitleTextCustomFont extends React.Component {
         activeOpacity={0.6}
       >
         <Text 
-          style={[styles.titleTextCustomFont,{height:this.props.height}]} 
+          style={[styles.titleText,{height:this.props.height}]} 
           resizeMode = {'contain'} 
         >
           {Assets.mainTitleText}
@@ -686,34 +680,8 @@ class TitleTextCustomFont extends React.Component {
   }
 }
 
-class TitleText extends React.Component {
-  constructor(props) {
-    super(props);
-    this.handlePress=this.handlePress.bind(this);
-  }
 
-  handlePress(e) {    
-    //let parent handle:     
-    this.props.onTitlePress();
-    
-  }
 
-  render() {
-    return (
-      <TouchableOpacity 
-        onPress={(e) => this.handlePress(e)} 
-        activeOpacity={0.6}
-      >
-        <Image 
-          style={[styles.titleText]} 
-          resizeMode = {'contain'} 
-          source={this.props.source}
-          >
-        </Image>
-      </TouchableOpacity>
-    )
-  }
-}
 
 class ImageButton extends React.Component {
   constructor(props) {

@@ -1,5 +1,4 @@
 const _Assets = {
-  mainTitleImage: require('./img/maintitle.png'),
   mainTitleText: 'Så gör man',
   mainBookName: 'doctor', //number of frames in this book defines the size of the indicators
   bookOrder: [
@@ -20,7 +19,7 @@ const _Assets = {
     restaurant: 'Gå på restaurang',
     dentist: 'Jag går till tandläkaren',
     train: 'Åka tåg',
-    shop: 'Gå och handla', //eller Handla i affären 
+    shop: 'Handla i affären',
   },
   titleImages: {
     funeral: require('./img/funeralicon.png'),
@@ -105,7 +104,7 @@ const _Assets = {
       'plane2.mp3',
       'plane3.mp3',
       'plane4.mp3',
-      'xplane5.mp3',
+      'plane5.mp3',
     ],
     train:   [
       'tada.mp3', //only used while testing

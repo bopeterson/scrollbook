@@ -19,31 +19,36 @@ const _Environments = {
     showBookTitle: true,
     statusBarHeight: 24,
     buttonColor: '#fecd0b', //red '#FF5959', yellow '#f4c053', 
-    textColor: 'black',//'#fecd0b', //red '#FF5959', yellow '#f4c053',bonasignum: '#fecd0b'
+    textColor: '#fecd0b',//'#fecd0b','#FF5959', yellow '#f4c053',bonasignum: '#fecd0b'
     mainViewColor: 'black',
-    startViewColor:'#fecd0b',
+    startViewColor: 'black',
     creditsViewColor: 'lightyellow',
-    statusBarColorLandscape: '#fecd0b',
-    statusBarColorPortrait: '#e5b909', //xxx eller black eller fecd0b
+    statusBarColorLandscape: 'black',
+    statusBarColorPortrait: 'black',
 
   },
   android: {
     platform: 'android',
-    playDelay1: 100, //milliseconds, 
-    playDelay2: 800, //milliseconds, 
+    playDelay1: 100, //milliseconds until when scroll is locked and speaker icon shown 
+    playDelay2: 800, //milliseconds until sound is played after scoll is locked
     delta: 0.2, //should not exeed 0.3
     deceleration: 'fast', 
     animateForcedScroll: true,
-    aspectRatio: (13.0/12.0), // w / h 
+    aspectRatio: (13.0/12.0), // w / h of book images
     imageSideSpace: 1.02, //add some extra space left and right of image 
     imagereduction: 0.8,
     scrollThrottle: 16, 
     gradualLoad: true,
     showLog: false,
     showBookTitle: true,
-    statusBarHeight: 24, //could maybe be 0
-    buttonColor: '#fecd0b', //red '#FF5959', yellow '#f4c053'
-    textColor: 'black',//'#fecd0b', //red '#FF5959', yellow '#f4c053',bonasignum: '#fecd0b'
+    statusBarHeight: 24,
+    buttonColor: '#fecd0b', //red '#FF5959', yellow '#f4c053', 
+    textColor: '#fecd0b',//'#fecd0b','#FF5959', yellow '#f4c053',bonasignum: '#fecd0b'
+    mainViewColor: 'black',
+    startViewColor: 'black',
+    creditsViewColor: 'lightyellow',
+    statusBarColorLandscape: 'black',
+    statusBarColorPortrait: 'black',
   }
   
 };
