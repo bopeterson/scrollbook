@@ -417,7 +417,7 @@ export default class MainView extends React.Component {
           </View>
         </View>
         <View style={[styles.right]}>
-            {<Log text={this.state.logtext} />}
+          <Log text={this.state.logtext} />
         </View>
       </View>
     );
@@ -557,7 +557,7 @@ class Log extends React.Component {
   }
   render() {
     if (Environment.showLog) {
-      return <Text style={{ color: 'white', fontFamily: 'Courier' }}>{this.props.text}</Text>
+      return <Text style={{ color: 'red', fontFamily: 'Courier' }}>{this.props.text}</Text>
     } else {
       return null;
     }
@@ -612,7 +612,7 @@ class StartScreen extends React.Component {
               <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={imageButtonImageMaxHeightLandscape}></ImageButton>
             </View>
             <View style={[styles.landscapeStartMainTitle]}>
-                <TitleText onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage} height={titleTextHeightLandscape}/>
+                <TitleText onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage} height={titleTextHeightLandscape} />
             </View>
             <View style={[styles.landscapeStartImageBlock]}>
               <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={imageButtonImageMaxHeightLandscape}></ImageButton>
@@ -636,7 +636,7 @@ class StartScreen extends React.Component {
               <ImageButton onImagePress={this.handleImagePress} bookNo={3} width={imageButtonImageMaxHeightPortrait}></ImageButton>
             </View>
             <View style={[styles.portraitStartMainTitle]}>
-              <TitleText onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage} height={titleTextHeightPortrait}/>
+              <TitleText onTitlePress={this.handleTitlePress} source={Assets.mainTitleImage} height={titleTextHeightPortrait} />
             </View>
             <View style={[styles.portraitStartImageBlock]}>
               <ImageButton onImagePress={this.handleImagePress} bookNo={4} width={imageButtonImageMaxHeightPortrait}></ImageButton>
@@ -747,22 +747,22 @@ class Credits extends React.Component {
     this.handleBackButtonPress = this.handleBackButtonPress.bind(this);
     
   }
-  
+
   handleLinkPress(e,url) {
      //url="http://asynkronix.se";
      Linking.openURL(url).catch(err => console.error('An error occurred', err));
     
   }
-  
+
   handleBackButtonPress() {
     //Back button can be pressed while speaking
+    //and will stop speaking
     const backAction = NavigationActions.back({});
     this.props.navigation.dispatch(backAction);
   }
-  
-  
+
   onLayout() {
-    
+
   }
   
   render () {
