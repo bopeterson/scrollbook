@@ -22,7 +22,7 @@ const _Environments = {
     textColor: '#fecd0b',//'#fecd0b','#FF5959', yellow '#f4c053',bonasignum: '#fecd0b'
     mainViewColor: 'black',
     startViewColor: 'black',
-    creditsViewColor: 'lightyellow',
+    creditsViewColor: 'white',
     statusBarColorLandscape: 'black',
     statusBarColorPortrait: 'black',
 
@@ -46,7 +46,7 @@ const _Environments = {
     textColor: '#fecd0b',//'#fecd0b','#FF5959', yellow '#f4c053',bonasignum: '#fecd0b'
     mainViewColor: 'black',
     startViewColor: 'black',
-    creditsViewColor: 'lightyellow',
+    creditsViewColor: 'white',
     statusBarColorLandscape: 'black',
     statusBarColorPortrait: 'black',
   }

@@ -242,14 +242,14 @@ const styles = StyleSheet.create({
   
   creditsContainer: {
     flex:1,
-    backgroundColor:'black',
+    backgroundColor:Environment.statusBarColorPortrait, //for both portrait and landscape
   },
   
   creditsSubContainer: {//adjust for status bar on
     flex:1,
     //alignItems:'center',
     marginTop:Environment.statusBarHeight, 
-    backgroundColor:'white',
+    backgroundColor:Environment.creditsViewColor,
   },  
 
   creditsText: {
@@ -258,7 +258,7 @@ const styles = StyleSheet.create({
     marginRight: 20,
     marginTop: 20,
     marginBottom: 0,
-    fontSize: 14,    
+    fontSize: moderateScale(18,0.8),    
   },
 
   creditsBackButton: {
@@ -627,7 +627,7 @@ class StartScreen extends React.Component {
 
   render() {
     if (Environment.platform==='android') {
-      StatusBar.setBackgroundColor('black');
+      StatusBar.setBackgroundColor(Environment.statusBarColorPortrait);
       StatusBar.setBarStyle('light-content');
     }
     if (this.state.orientation=='LANDSCAPE') {
@@ -802,7 +802,7 @@ class Credits extends React.Component {
           <Text style={[styles.creditsText]}>
             <Text style={{fontWeight: 'bold'}}>Så gör man</Text><Text> är åtta bildberättelser utgivna av </Text>
             <Text style={{textDecorationLine:'underline'}} onPress={(e) => this.handleLinkPress(e,'http://bonasignum.se')}>Bona Signum</Text>
-            <Text>. Peka på en av de åtta berättelserna för att titta in i den. Svep för att bläddra mellan bilderna. En röst läser upp en text till varje bild. Peka på knappen under bilden för att läsa upp texten igen. </Text>
+            <Text>. Peka på en av de åtta berättelserna för att titta i den. Svep för att bläddra mellan bilderna. En röst läser upp en text till varje bild. Peka på knappen under bilden för att läsa upp texten igen. </Text>
           </Text>
           <Text style={[styles.creditsText]}>
             <Text>Berättelserna är framtagna av Ann Gomér med illustrationer av Carolina Ståhlberg och speaker är Frida Möller. Appen är utvecklad av Bo Peterson, </Text><Text style={{textDecorationLine:'underline'}} onPress={(e) => this.handleLinkPress(e,'http://asynkronix.se')}>Asynkronix</Text>
