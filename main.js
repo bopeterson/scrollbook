@@ -20,9 +20,14 @@ import {
   NavigationActions,
 } from 'react-navigation';
 
+import resolveAssetSource from 'resolveAssetSource';
+
 const Environment = require('./environment.js');
 const Assets = require('./assets.js');
 
+//hack to get size of logo because Image.getSize() does not work for static images (yet)
+const {width:logoWidth, height:logoHeight} = resolveAssetSource(Assets.logo);
+console.log(logoWidth,logoHeight);
 // Enable playback in silence mode (iOS only)
 Sound.setCategory('Playback');
 
@@ -31,6 +36,10 @@ const prettyLog = (obj,text='log') => {
   str=JSON.stringify(obj, null, 4);
   console.log(text+": "+str);  
 }
+
+
+prettyLog(resolveAssetSource(Assets.logo));
+
 
 const getOrientation = () => (
   Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'
@@ -238,19 +247,22 @@ const styles = StyleSheet.create({
   creditsContainer: {
     flex: 1,
     padding:20,
-    backgroundColor:'lightyellow',
+    backgroundColor:'white',
   },
   
-  creditsText: {
+  creditsTitle: {
+    padding: 10,
     fontSize: 38,
-    color:'steelblue',
-    //backgroundColor:'darkblue',
-    
   },
+
+  creditsText: {
+    //padding: 10, //padding makes links stop working (at least in ios simulator). margin seems to work though
+    margin: 10,
+    fontSize: 16,    
+  },
+
+
   
-  creditsNavigator: {
-    //backgroundColor:'black',
-  },
 });
 
 export default class MainView extends React.Component {
@@ -734,7 +746,6 @@ class BookTitle extends React.Component {
 class Credits extends React.Component {
   static navigationOptions = {
     title: 'Om böckerna',
-    headerStyle: styles.creditsNavigator,
   };
   
   constructor(props) {
@@ -764,39 +775,48 @@ class Credits extends React.Component {
   onLayout() {
 
   }
+
+
   
   render () {
-    //xxx layout ej klar
-    return (
-        <View style={[styles.landscapeStartContainer]} onLayout={this.onLayout.bind(this)}>
-          <View style={[styles.landscapeStartSubContainer]}>
-      <View style={[styles.creditsContainer]}>
-      
-        <Text style={[styles.creditsText]}>Så gör man - Layout ej klar!</Text>
-        <Text>Så gör man är ett läromedel av Ann Gomér, BonaSignum med illustrationer av Carolina Ståhlberg. Appen är utvecklad i samarbete med Asynkronix</Text>
-      <TouchableOpacity
-        onPress={(e) => this.handleLinkPress(e,'http://bonasignum.se')}
-        > 
-        <Text>bonasignum.se</Text>
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={(e) => this.handleLinkPress(e,'http://asynkronix.se')}
-      > 
-        <Text>asynkronix.se</Text>
-      </TouchableOpacity>
-      <BackButton 
-        onBackButtonPress={this.handleBackButtonPress} 
-        //orientation={this.state.orientation} 
-        renderIf={'ALWAYS'}
-      />
         
-
-      </View>
-      </View>
+    return (
+      <View style={[styles.portraitStartContainer,{backgroundColor:'black'}]} onLayout={this.onLayout.bind(this)}>
+        <View style={[styles.portraitStartSubContainer,{backgroundColor:'white'}]}>
+          
+          <Text style={[styles.creditsText]}>
+            <Text style={{fontWeight: 'bold'}}>Så gör man</Text><Text> är åtta bildberättelser utgivna av </Text>
+            <Text style={{textDecorationLine:'underline'}} onPress={(e) => this.handleLinkPress(e,'http://bonasignum.se')}>Bona Signum</Text>
+            <Text>. Peka på en av de åtta berättelserna för att titta in i den. Svep för att bläddra mellan bilderna. En röst läser upp en text till varje bild. Peka på knappen under bilden för att läsa upp texten igen. </Text>
+          </Text>
+          <Text style={[styles.creditsText]}>
+            <Text>Berättelserna är framtagna av Ann Gomér med illustrationer av Carolina Ståhlberg och speaker är Frida Möller. Appen är utvecklad av Bo Peterson, </Text><Text style={{textDecorationLine:'underline'}} onPress={(e) => this.handleLinkPress(e,'http://asynkronix.se')}>Asynkronix</Text>
+            <Text>. </Text>
+          </Text>
+          <TouchableOpacity style={{margin: 10,
+width: indicatorWidth, height: indicatorWidth,backgroundColor:'blue'}} onPress={this.handleBackButtonPress}>
+            <Image
+              resizeMode = {'contain'}
+              style={{width: indicatorWidth, height: indicatorWidth,backgroundColor:'white'}}
+              id={[styles.backButton]} 
+              source={Assets.creditsBackIcon}
+            >
+            </Image>
+          </TouchableOpacity>
+          <Image
+            style={{margin:10,width:minDim*0.5,height:minDim*logoHeight/logoWidth*0.5,backgroundColor:'yellow'}}
+            resizeMode = {'contain'}
+            source={Assets.logo}
+          >
+          </Image>
+                
+        </View>
       </View>
     );
   };
 }
+
+
 
 const MainNavigator = StackNavigator(
   {

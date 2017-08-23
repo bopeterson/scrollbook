@@ -166,6 +166,8 @@ const _Assets = {
 
   speakerIcon: require('./img/speaker256x256.png'),
   backIcon: require('./img/home240x240transp.png'),
+  creditsBackIcon: require('./img/back.png'),
+  logo: require('./img/bonasignumlogo.png'),
 };
 
 const Assets = _Assets;
