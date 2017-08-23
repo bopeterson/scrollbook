@@ -37,10 +37,6 @@ const prettyLog = (obj,text='log') => {
   console.log(text+": "+str);  
 }
 
-
-prettyLog(resolveAssetSource(Assets.logo));
-
-
 const getOrientation = () => (
   Dimensions.get('window').width>Dimensions.get('window').height ? 'LANDSCAPE' : 'PORTRAIT'
 );
@@ -245,22 +241,43 @@ const styles = StyleSheet.create({
   },
   
   creditsContainer: {
-    flex: 1,
-    padding:20,
-    backgroundColor:'white',
+    flex:1,
+    backgroundColor:'black',
   },
   
-  creditsTitle: {
-    padding: 10,
-    fontSize: 38,
-  },
+  creditsSubContainer: {//adjust for status bar on
+    flex:1,
+    //alignItems:'center',
+    marginTop:Environment.statusBarHeight, 
+    backgroundColor:'white',
+  },  
 
   creditsText: {
     //padding: 10, //padding makes links stop working (at least in ios simulator). margin seems to work though
-    margin: 10,
-    fontSize: 16,    
+    marginLeft: 20,
+    marginRight: 20,
+    marginTop: 20,
+    marginBottom: 0,
+    fontSize: 14,    
   },
 
+  creditsBackButton: {
+    marginLeft: 20,
+    marginTop: 20,
+    width: indicatorWidth, 
+    height: indicatorWidth,
+  },
+  
+  creditsBackButtonImage: {
+    width: indicatorWidth, 
+    height: indicatorWidth,
+  },
+  
+  creditsLogo: {
+    alignSelf:'center',
+    margin:0,
+    width:minDim*0.6,height:minDim*logoHeight/logoWidth*0.6,
+  }
 
   
 });
@@ -779,11 +796,9 @@ class Credits extends React.Component {
 
   
   render () {
-        
     return (
-      <View style={[styles.portraitStartContainer,{backgroundColor:'black'}]} onLayout={this.onLayout.bind(this)}>
-        <View style={[styles.portraitStartSubContainer,{backgroundColor:'white'}]}>
-          
+      <View style={[styles.creditsContainer]} onLayout={this.onLayout.bind(this)}>
+        <View style={[styles.creditsSubContainer]}>
           <Text style={[styles.creditsText]}>
             <Text style={{fontWeight: 'bold'}}>Så gör man</Text><Text> är åtta bildberättelser utgivna av </Text>
             <Text style={{textDecorationLine:'underline'}} onPress={(e) => this.handleLinkPress(e,'http://bonasignum.se')}>Bona Signum</Text>
@@ -793,18 +808,16 @@ class Credits extends React.Component {
             <Text>Berättelserna är framtagna av Ann Gomér med illustrationer av Carolina Ståhlberg och speaker är Frida Möller. Appen är utvecklad av Bo Peterson, </Text><Text style={{textDecorationLine:'underline'}} onPress={(e) => this.handleLinkPress(e,'http://asynkronix.se')}>Asynkronix</Text>
             <Text>. </Text>
           </Text>
-          <TouchableOpacity style={{margin: 10,
-width: indicatorWidth, height: indicatorWidth,backgroundColor:'blue'}} onPress={this.handleBackButtonPress}>
+          <TouchableOpacity style={[styles.creditsBackButton]} onPress={this.handleBackButtonPress}>
             <Image
               resizeMode = {'contain'}
-              style={{width: indicatorWidth, height: indicatorWidth,backgroundColor:'white'}}
-              id={[styles.backButton]} 
+              style={[styles.creditsBackButtonImage]}
               source={Assets.creditsBackIcon}
             >
             </Image>
           </TouchableOpacity>
           <Image
-            style={{margin:10,width:minDim*0.5,height:minDim*logoHeight/logoWidth*0.5,backgroundColor:'yellow'}}
+            style={[styles.creditsLogo]}
             resizeMode = {'contain'}
             source={Assets.logo}
           >
